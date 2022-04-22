@@ -51,8 +51,8 @@ public class Conway {
 
 
 class CModele extends Observable {
-    public static final int HAUTEUR = 10, LARGEUR = 10;
-    private final Cellule heliport;
+    public static final int HAUTEUR = 6, LARGEUR = 6;
+    private Cellule heliport;
     private final Cellule[][] cellules;
     protected boolean win = false;
     protected boolean loose = false;
@@ -67,12 +67,34 @@ class CModele extends Observable {
                 cellules[i][j] = new Cellule(this, i, j);
             }
         }
-        cellules[4][2].artefact = Artefact.EAU;
+        ArrayList<Cellule> temp = new ArrayList<>();
         Random r = new Random();
-        heliport = cellules[r.nextInt(HAUTEUR)][r.nextInt(HAUTEUR)];
+        int x = r.nextInt(cellules.length);
+        int y =r.nextInt(cellules.length);
+        this.heliport = cellules[x][y];
         heliport.heliport = true;
+        temp.add(heliport);
+        init(Artefact.EAU,temp);
+        init(Artefact.EAU,temp);
+        init(Artefact.AIR,temp);
+        init(Artefact.AIR,temp);
+        init(Artefact.FUEGO,temp);
+        init(Artefact.FUEGO,temp);
+        init(Artefact.TERRE,temp);
+        init(Artefact.TERRE,temp);
     }
 
+    private void init(Artefact a,ArrayList<Cellule> temp){
+        Random r = new Random();
+        int x = r.nextInt(LARGEUR);
+       int  y =r.nextInt(HAUTEUR);
+        while (temp.contains(cellules[x][y])){
+            x = r.nextInt(LARGEUR);
+            y =r.nextInt(HAUTEUR);
+        }
+        cellules[x][y].artefact = a;
+        temp.add(cellules[x][y]);
+    }
     private void creationJoueurs() {
         Scanner sc = new Scanner(System.in);
         System.out.println("Bienvenue dans l'ile interdite, Veuillez entrer le nombre de joueurs, entre 2 et 4 compris");
@@ -662,9 +684,14 @@ class VueGrille extends JPanel implements Observer {
             i++;
         }
         if (!(c.artefact == null)) {
-            g.setColor(Color.YELLOW);
+            switch(c.artefact){
+                case EAU -> g.setColor(Color.GRAY);
+                case FUEGO -> g.setColor(Color.red);
+                case TERRE -> g.setColor(Color.BLACK);
+                case AIR -> g.setColor(Color.pink);
+            }
             //  g.drawOval(x, y, TAILLE*1, TAILLE*1);
-            g.fillOval(x, y, TAILLE / 2, TAILLE / 2);
+            g.fillOval(x, y, TAILLE*5 / 2, TAILLE*5 / 2);
         }
         if (c.heliport) {
             g.setColor(Color.pink);
