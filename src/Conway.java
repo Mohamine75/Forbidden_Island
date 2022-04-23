@@ -139,8 +139,6 @@ class CModele extends Observable {
             case 2 -> {
                 joueurs.put(0, new Player(0, 0));
                 joueurs.put(1, new Player(0, 1));
-                joueurs.get(1).objets.add("helico");
-                joueurs.get(1).objets.add("sable");
             }
             case 3 -> {
                 joueurs.put(0, new Player(0, 0));
@@ -178,11 +176,15 @@ class CModele extends Observable {
         }
     }
 
-    public void testLoose() {
+    public void testLoose() throws InterruptedException {
 
         if (heliport.level == Level.submerge) {
             this.loose = true;
-            System.out.println("L'héliport est noyé, vous êtes coincés sur l'île, partie perdu :(");
+            TimeUnit.SECONDS.sleep(10);
+            System.exit(0);
+            return;
+
+
         }
         testDeaths();
     }
@@ -200,7 +202,7 @@ class CModele extends Observable {
 
     public void avance() throws InterruptedException {
         testLoose();
-        if (joueurs.get(tour).action > 0.5 || loose) {
+        if (joueurs.get(tour).action > 0.5) {
             System.out.println("Il vous reste encore " + joueurs.get(tour).action + " action à faire ");
             return;
         }
@@ -255,7 +257,7 @@ class CModele extends Observable {
 
     public void searchKey() throws InterruptedException {
         testLoose();
-        if (joueurs.get(tour).action - 1 < 0 || this.loose) {
+        if (joueurs.get(tour).action - 1 < 0) {
             return;
         }
         if (this.win){
@@ -297,7 +299,7 @@ class CModele extends Observable {
             System.exit(0);
             return;
         }
-        if (joueurs.get(tour).action - 1 < 0 || this.loose) {
+        if (joueurs.get(tour).action - 1 < 0) {
             return;
         }
 
@@ -325,7 +327,7 @@ class CModele extends Observable {
 
     public void move(String direction) throws InterruptedException {
         testLoose();
-        if (joueurs.get(tour).action - 1 < 0 || this.loose) {
+        if (joueurs.get(tour).action - 1 < 0) {
             return;
         }
         if (this.win){
@@ -389,6 +391,7 @@ class CModele extends Observable {
     protected void assecher(String direction) throws InterruptedException {
         if (joueurs.get(tour).action < 0.5 || loose) {
             return;
+
         }
         if (this.win){
             System.out.println("Bravo, le jeu est gagné :)");
@@ -399,7 +402,6 @@ class CModele extends Observable {
         Player p = joueurs.get(tour);
         int x = p.posX;
         int y = p.posY;
-        this.win = true;
         switch (direction) {
             case "⬆" -> y = p.posY - 1;
             case "⬇" -> y = p.posY + 1;
@@ -997,13 +999,15 @@ class VueGrille extends JPanel implements Observer {
             i++;
         }
         Player p =  modele.joueurs.get(modele.tour);
-        g.clearRect(TAILLE,TAILLE*6,200,100);
+        g.clearRect(TAILLE,TAILLE*6,200,110);
         g.setFont(g.getFont().deriveFont(Font.BOLD));
         g.drawString("Nom du Joueur :   " + p.name,TAILLE,TAILLE *6+ 10);
         g.drawString("Role :   " + p.role,TAILLE,TAILLE *6+ 30);
+
         g.drawString("Actions : " + p.action, TAILLE,(TAILLE * 6 )+ 50);
         g.drawString(" Artefacts : " + p.artefacts , TAILLE ,(TAILLE * 6 )+ 70);
         g.drawString(" Keys : " + p.keys , TAILLE ,(TAILLE * 6 )+ 90);
+        g.drawString(" Objets : " + p.objets , TAILLE ,(TAILLE * 6 )+ 110);
 
     }
 }
