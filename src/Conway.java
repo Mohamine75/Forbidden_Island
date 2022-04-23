@@ -3,12 +3,10 @@ import Enums.Key;
 import Enums.Level;
 import Enums.Roles;
 
-import java.lang.reflect.Array;
 import java.util.*;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
-import javax.swing.border.Border;
 
 
 interface Observer {
@@ -52,49 +50,50 @@ public class Conway {
 
 class CModele extends Observable {
     public static final int HAUTEUR = 6, LARGEUR = 6;
-    private Cellule heliport;
     private final Cellule[][] cellules;
     protected boolean win = false;
     protected boolean loose = false;
     protected HashMap<Integer, Player> joueurs = new HashMap<>();
     protected int tour = 0;
+    private Cellule heliport;
 
     public CModele() {
         creationJoueurs();
         cellules = new Cellule[LARGEUR + 2][HAUTEUR + 2];
-        for (int i = 0; i < HAUTEUR+ 2; i++) {
-            for (int j = 0; j < LARGEUR+ 2; j++) {
+        for (int i = 0; i < HAUTEUR + 2; i++) {
+            for (int j = 0; j < LARGEUR + 2; j++) {
                 cellules[i][j] = new Cellule(this, i, j);
             }
         }
         ArrayList<Cellule> temp = new ArrayList<>();
         Random r = new Random();
         int x = r.nextInt(LARGEUR);
-        int y =r.nextInt(HAUTEUR);
+        int y = r.nextInt(HAUTEUR);
         this.heliport = cellules[x][y];
         heliport.heliport = true;
         temp.add(heliport);
-        init(Artefact.EAU,temp);
-        init(Artefact.EAU,temp);
-        init(Artefact.AIR,temp);
-        init(Artefact.AIR,temp);
-        init(Artefact.FEU,temp);
-        init(Artefact.FEU,temp);
-        init(Artefact.TERRE,temp);
-        init(Artefact.TERRE,temp);
+        init(Artefact.EAU, temp);
+        init(Artefact.EAU, temp);
+        init(Artefact.AIR, temp);
+        init(Artefact.AIR, temp);
+        init(Artefact.FEU, temp);
+        init(Artefact.FEU, temp);
+        init(Artefact.TERRE, temp);
+        init(Artefact.TERRE, temp);
     }
 
-    private void init(Artefact a,ArrayList<Cellule> temp){
+    private void init(Artefact a, ArrayList<Cellule> temp) {
         Random r = new Random();
         int x = r.nextInt(LARGEUR);
-       int  y =r.nextInt(HAUTEUR);
-        while (temp.contains(cellules[x][y])){
+        int y = r.nextInt(HAUTEUR);
+        while (temp.contains(cellules[x][y])) {
             x = r.nextInt(LARGEUR);
-            y =r.nextInt(HAUTEUR);
+            y = r.nextInt(HAUTEUR);
         }
         cellules[x][y].artefact = a;
         temp.add(cellules[x][y]);
     }
+
     private void creationJoueurs() {
         Scanner sc = new Scanner(System.in);
         System.out.println("Bienvenue dans l'ile interdite, Veuillez entrer le nombre de joueurs, entre 2 et 4 compris");
@@ -113,11 +112,10 @@ class CModele extends Observable {
     }
 
 
-
     private ArrayList<String> createNames(int nb, Scanner sc) {
         ArrayList<String> noms = new ArrayList<>();
         for (int i = 1; i <= nb; i++) {
-            System.out.println("Nom du joueur" + i);
+            System.out.println("Nom du joueur " + i);
             String n = sc.next();
             while (noms.contains(n)) {
                 System.out.println("Nom déjà attribué, retapez un autre svp");
@@ -133,7 +131,8 @@ class CModele extends Observable {
             case 2 -> {
                 joueurs.put(0, new Player(0, 0));
                 joueurs.put(1, new Player(0, 1));
-                joueurs.get(1).addKey(Key.EAU);
+                joueurs.get(1).objets.add("helico");
+                joueurs.get(1).objets.add("sable");
             }
             case 3 -> {
                 joueurs.put(0, new Player(0, 0));
@@ -154,17 +153,17 @@ class CModele extends Observable {
         int nb;
         Roles r = Roles.BASE;
         ArrayList<Roles> roles = new ArrayList<>();
-        System.out.println("Choissiez le rôle des joueurs en tapant le numéro associé, " +
-                "1 pour Pilote,2 pour Ingénieur,3 pour Explorateur,4 pour Navigateur" +
-                "5 pour Plongeur et 6 pour Messager,deux joueurs ne pouvant avoir le " +
-                "même role!");
+        System.out.println("Choissiez le rôle des joueurs en tapant le numéro associé:\n" +
+                "1 - Pilote\n2 - Ingénieur\n3 - Explorateur\n4 - Navigateur\n" +
+                "5 - Plongeur\n6 - Messager\nDeux joueurs ne pouvant avoir le " +
+                "même role.");
         for (Player p : joueurs.values()) {
             System.out.println("Choisissez le rôle de " + p.name);
             nb = sc.nextInt();
-                while (roles.contains(r.getR(nb)) || nb > 6 || nb < 1) {
-                    System.out.println("Role déjà attribué, veuillez re essayer ou invalide :");
-                    nb = sc.nextInt();
-                }
+            while (roles.contains(r.getR(nb)) || nb > 6 || nb < 1) {
+                System.out.println("Role déjà attribué, veuillez re essayer ou invalide :");
+                nb = sc.nextInt();
+            }
             p.setRole(nb);
             roles.add(p.role);
             System.out.println("Le rôle de " + p.name + " est " + p.role.name());
@@ -183,9 +182,9 @@ class CModele extends Observable {
     private void testDeaths() {
 
         for (Player p : joueurs.values()) {
-            if (cellules[p.posY][p.posY].level == Level.submerge && p.role!=Roles.PLONGEUR) {
+            if (cellules[p.posX][p.posY].level == Level.submerge && p.role != Roles.PLONGEUR) {
                 System.out.println("Un joueur s'est noyé, fin du jeu :(");
-                System.out.println("Joueur : " +p.name);
+                System.out.println("Joueur : " + p.name);
                 this.loose = true;
             }
         }
@@ -204,11 +203,11 @@ class CModele extends Observable {
             int x = random.nextInt(LARGEUR);
             int y = random.nextInt(LARGEUR);
             Cellule c = getCellule(x, y);
-            if (!getCellule(x, y).getLevel().equals(Level.submerge) && countEtats()>=3) {
+            if (!getCellule(x, y).getLevel().equals(Level.submerge) && countEtats() >= 3) {
                 getCellule(x, y).evolue();
                 res.add(c);
             }
-            if(countEtats()<3){
+            if (countEtats() < 3) {
                 res.add(c);
             }
         }
@@ -216,11 +215,11 @@ class CModele extends Observable {
         tourParTour();
     }
 
-    private int countEtats(){
-       int  count = 0;
+    private int countEtats() {
+        int count = 0;
         for (int i = 0; i < HAUTEUR; i++) {
             for (int j = 0; j < LARGEUR; j++) {
-                if(!cellules[i][j].level.equals(Level.submerge)){
+                if (!cellules[i][j].level.equals(Level.submerge)) {
                     count++;
                 }
             }
@@ -228,9 +227,11 @@ class CModele extends Observable {
         }
         return count;
     }
+
     public void tourParTour() {
         if (joueurs.get(tour).action == 0) {
             joueurs.get(tour).action = 3;
+            joueurs.get(tour).actionObjet = 1;
             tour++;
             if (tour == joueurs.size()) {
                 tour = 0;
@@ -238,61 +239,62 @@ class CModele extends Observable {
         }
     }
 
-    public void searchKey(){testLoose();
-        if (joueurs.get(tour).action-1 < 0 || this.loose) {
+    public void searchKey() {
+        testLoose();
+        if (joueurs.get(tour).action - 1 < 0 || this.loose) {
             return;
         }
         Player p = joueurs.get(tour);
         Random r = new Random();
-        switch (r.nextInt(2)){
-            case 0-> {
+        switch (r.nextInt(3)) {
+            case 0 -> {
                 ArrayList<Cellule> res = new ArrayList<>();
                 while (res.size() < 3) {
                     int x = r.nextInt(LARGEUR);
                     int y = r.nextInt(LARGEUR);
                     Cellule c = getCellule(x, y);
-                    if (!getCellule(x, y).getLevel().equals(Level.submerge) && countEtats()>=3) {
+                    if (!getCellule(x, y).getLevel().equals(Level.submerge) && countEtats() >= 3) {
                         getCellule(x, y).evolue();
                         res.add(c);
                     }
-                    if(countEtats()<3){
+                    if (countEtats() < 3) {
                         res.add(c);
                     }
                 }
             }
-            case 1-> p.addKeyHasard(3);
+            case 1 -> p.addKeyHasard(5);
             case 2 -> System.out.println("Rien ne s'est passée...");
         }
-        p.action -=1;
+        p.action -= 1;
     }
 
     public void helico() {
         int arte = 0;
         testLoose();
-        if (joueurs.get(tour).action-1 < 0 || this.loose) {
+        if (joueurs.get(tour).action - 1 < 0 || this.loose) {
             return;
         }
         for (Player p :
                 joueurs.values()) {
             if (heliport.x == p.posX && heliport.y == p.posY) {
-                    arte += p.artefacts.size();
-                }else{
+                arte += p.artefacts.size();
+            } else {
                 System.out.println("Un joueur n'est pas sur l'héliport, veuillez vous regrouper");
                 return;
-                }
             }
-        if (arte == 4){
+        }
+        if (arte == 4) {
             System.out.println("Bravo, partie gagnée");
             win = true;
-            }
-            System.out.println("Les conditions ne sont pas réunies.");
-
         }
+        System.out.println("Les conditions ne sont pas réunies.");
+
+    }
 
 
     public void move(String direction) {
         testLoose();
-        if (joueurs.get(tour).action-1 < 0 || this.loose) {
+        if (joueurs.get(tour).action - 1 < 0 || this.loose) {
             return;
         }
         Player p = joueurs.get(tour);
@@ -303,25 +305,25 @@ class CModele extends Observable {
             case "bas" -> y = p.posY + 1;
             case "droite" -> x = p.posX + 1;
             case "gauche" -> x = p.posX - 1;
-            case "haut-droite"-> {
+            case "haut-droite" -> {
                 if (p.role == Roles.EXPLORATEUR) {
                     y = p.posY - 1;
                     x = p.posX + 1;
                 }
             }
-            case "bas-droite"->{
+            case "bas-droite" -> {
                 if (p.role == Roles.EXPLORATEUR) {
                     y = p.posY + 1;
                     x = p.posX + 1;
                 }
             }
-            case "bas-gauche"->{
+            case "bas-gauche" -> {
                 if (p.role == Roles.EXPLORATEUR) {
                     y = p.posY + 1;
                     x = p.posX - 1;
                 }
             }
-            case "haut-gauche"->{
+            case "haut-gauche" -> {
                 if (p.role == Roles.EXPLORATEUR) {
                     y = p.posY - 1;
                     x = p.posX - 1;
@@ -333,7 +335,7 @@ class CModele extends Observable {
             System.out.println("Out of Bounds");
             return;
         }
-        if (getCellule(x, y).getLevel().equals(Level.submerge) && p.role!=Roles.PLONGEUR) {
+        if (getCellule(x, y).getLevel().equals(Level.submerge) && p.role != Roles.PLONGEUR) {
             System.out.println("impossible,vous n'êtes pas plongeur");
             return;
         }
@@ -361,25 +363,25 @@ class CModele extends Observable {
             case "bas" -> y = p.posY + 1;
             case "droite" -> x = p.posX + 1;
             case "gauche" -> x = p.posX - 1;
-            case "haut-droite"-> {
+            case "haut-droite" -> {
                 if (p.role == Roles.EXPLORATEUR) {
                     y = p.posY + 1;
                     x = p.posX + 1;
                 }
             }
-            case "bas-droite"->{
+            case "bas-droite" -> {
                 if (p.role == Roles.EXPLORATEUR) {
                     y = p.posY - 1;
                     x = p.posX + 1;
                 }
             }
-            case "bas-gauche"->{
+            case "bas-gauche" -> {
                 if (p.role == Roles.EXPLORATEUR) {
                     y = p.posY - 1;
                     x = p.posX - 1;
                 }
             }
-            case "haut-gauche"->{
+            case "haut-gauche" -> {
                 if (p.role == Roles.EXPLORATEUR) {
                     y = p.posY + 1;
                     x = p.posX - 1;
@@ -403,15 +405,13 @@ class CModele extends Observable {
         }
     }
 
-    public void actionSpeciale(){
-        if (joueurs.get(tour).action-1 < 0 || loose) {
+    public void actionSpeciale() {
+        if (joueurs.get(tour).action - 1 < 0 || loose) {
             return;
         }
-        switch(joueurs.get(tour).role){
-            case PILOTE ->
-                pilote(joueurs.get(tour));
-            case PLONGEUR ->
-                    System.out.println("Vous pouvez traverser les cases submergées, cela coùte une action");
+        switch (joueurs.get(tour).role) {
+            case PILOTE -> pilote(joueurs.get(tour));
+            case PLONGEUR -> System.out.println("Vous pouvez traverser les cases submergées, cela coùte une action");
             case NAVIGATEUR -> navigateur();
             case MESSAGER -> messager();
             case INGENIEUR -> System.out.println("Vous pouvez assecher 2 zones pour 1 action");
@@ -419,23 +419,23 @@ class CModele extends Observable {
         }
     }
 
-    private void pilote(Player p){
+    private void pilote(Player p) {
         int x;
         int y;
-        Scanner sc  = new Scanner(System.in);
+        Scanner sc = new Scanner(System.in);
         System.out.println("ACTION SPECIALE, veuillez entrez l'endroit où vous voulez aller, qui n'est bien sûr pas subermergé");
         System.out.println("x :");
-        x= sc.nextInt();
+        x = sc.nextInt();
         System.out.println("y :");
         y = sc.nextInt();
-        while(( x < 0 || x>= LARGEUR)|| (y >=HAUTEUR || y < 0) || cellules[x][y].level == Level.submerge){
+        while ((x < 0 || x >= LARGEUR) || (y >= HAUTEUR || y < 0) || cellules[x][y].level == Level.submerge) {
             System.out.println("Cellule submergée, impossible");
             System.out.println("x :");
-            x= sc.nextInt();
+            x = sc.nextInt();
             System.out.println("y :");
             y = sc.nextInt();
         }
-        p.action-=1;
+        p.action -= 1;
         p.posX = x;
         p.posY = y;
     }
@@ -444,24 +444,24 @@ class CModele extends Observable {
         int num;
         Scanner sc = new Scanner(System.in);
         System.out.println("Entrez le numéro du joueur que vous voulez déplacer");
-        num = sc.nextInt()-1;
-        while (num < 0 || num > joueurs.size() || num ==tour) {
+        num = sc.nextInt() - 1;
+        while (num < 0 || num > joueurs.size() || num == tour) {
             System.out.println("Retapez le numéro svp :)");
-            num = sc.nextInt()-1;
+            num = sc.nextInt() - 1;
         }
         Player p = joueurs.get(num);
         int xy = 1000;
         System.out.println("Vous voulez le déplacer en x ou en y ?");
         switch (sc.next()) {
             case "x" -> {
-                while (p.posX + xy >= LARGEUR || (xy<0 && p.posX + xy < 0) || (xy > 2) || (xy < -2)) {
+                while (p.posX + xy >= LARGEUR || (xy < 0 && p.posX + xy < 0) || (xy > 2) || (xy < -2)) {
                     System.out.println("Entrez le nombre à addition (peut être négatif)");
                     xy = sc.nextInt();
                 }
                 p.posX = p.posX + xy;
             }
             case "y" -> {
-                while (p.posY - xy >= HAUTEUR || (xy>0 && p.posY - xy < 0) || (xy > 2) || (xy < -2)) {
+                while (p.posY - xy >= HAUTEUR || (xy > 0 && p.posY - xy < 0) || (xy > 2) || (xy < -2)) {
                     System.out.println("Entrez le nombre à addition (peut être négatif)");
                     xy = sc.nextInt();
                 }
@@ -471,64 +471,66 @@ class CModele extends Observable {
         }
         joueurs.get(tour).action -= 1;
     }
-    private void messager(){
+
+    private void messager() {
         Player p = joueurs.get(tour);
-        if(p.keys.size() == 0) return;
+        if (p.keys.size() == 0) return;
         Scanner sc = new Scanner(System.in);
         System.out.println("Quelle clé voulez-vous donner,entrez le type?");
         String key = sc.next();
         key = key.toLowerCase();
-        while(!key.equals("eau") && !key.equals("terre") && !key.equals("feu") && !key.equals("air")){
+        while (!key.equals("eau") && !key.equals("terre") && !key.equals("feu") && !key.equals("air")) {
             System.out.println("Quelle clé voulez-vous donner,entrez le type?");
             key = sc.next();
             key = key.toLowerCase();
         }
-        if(!p.keys.contains(Key.valueOf(key.toUpperCase(Locale.ROOT)))){
+        if (!p.keys.contains(Key.valueOf(key.toUpperCase(Locale.ROOT)))) {
             System.out.println("Vous n'avez pas ce type de clé");
             return;
         }
         p.keys.remove(Key.valueOf(key.toUpperCase(Locale.ROOT)));
         System.out.println("Entrez le numéro du joueur ciblé");
-        int num = sc.nextInt()-1;
-        while (num < 0 || num+1 > joueurs.size() || num ==tour) {
+        int num = sc.nextInt() - 1;
+        while (num < 0 || num + 1 > joueurs.size() || num == tour) {
             System.out.println("Retapez le numéro svp :)");
-            num = sc.nextInt()-1;
+            num = sc.nextInt() - 1;
         }
         joueurs.get(num).addKey(Key.valueOf(key.toUpperCase(Locale.ROOT)));
         System.out.println("Le joueur " + joueurs.get(num).name + " A reçu la clé " + Key.valueOf(key.toUpperCase(Locale.ROOT)));
-        p.action-=1;
+        p.action -= 1;
     }
 
-    public void giveKey(){
+    public void giveKey() {
         Player p = joueurs.get(tour);
-        if (p.action-1 < 0 || loose || p.keys.size()==0) {
+        if (p.action - 1 < 0 || loose || p.keys.size() == 0) {
             return;
         }
         Scanner sc = new Scanner(System.in);
         System.out.println("Quelle clé voulez-vous donner,entrez le type?");
         String key = sc.next();
         key = key.toLowerCase();
-        while(!key.equals("eau") && !key.equals("terre") && !key.equals("feu") && !key.equals("air")){
+        while (!key.equals("eau") && !key.equals("terre") && !key.equals("feu") && !key.equals("air")) {
             System.out.println("Quelle clé voulez-vous donner,entrez le type?");
             key = sc.next();
             key = key.toLowerCase();
         }
         Key k = Key.valueOf(key.toUpperCase(Locale.ROOT));
-        if(!p.keys.contains(k)){
+        if (!p.keys.contains(k)) {
             System.out.println("Vous n'avez pas ce type de clé");
             return;
         }
-        for(Player x : joueurs.values()) {
-            if(x.posX == p.posX && p.posY == x.posY && !x.name.equals(p.name)) {
+        for (Player x : joueurs.values()) {
+            if (x.posX == p.posX && p.posY == x.posY && !x.name.equals(p.name)) {
                 p.keys.remove(k);
                 x.addKey(k);
-                System.out.println("La clé de type " + k.name().toLowerCase() + " a été donné à "+ x.name);
-                p.action-=1;
+                System.out.println("La clé de type " + k.name().toLowerCase() + " a été donné à " + x.name);
+                p.action -= 1;
                 return;
             }
         }
         System.out.println("Aucun joueur présent dans votre zone :(");
     }
+
     /**
      * Notez qu'à l'intérieur de la classe [CModele], la classe interne est
      * connue sous le nom abrégé [Cellule].
@@ -584,6 +586,80 @@ class CModele extends Observable {
         }
         System.out.println("Aucune clé ici");
         avance();
+    }
+
+
+    public void objet() {
+        Player p = joueurs.get(tour);
+        if ((p.action == 0 && p.actionObjet == 0) || loose) {
+            return;
+        }
+        if (p.objets.size() == 0) {
+            System.out.println("Vous n'avez aucun objet à utiliser");
+            return;
+        }
+        Scanner sc = new Scanner(System.in);
+        System.out.println("Quelle objet voulez-vous utiliser?");
+        String objet = sc.next();
+        objet = objet.toLowerCase();
+        while (!p.objets.contains(objet)) {
+            System.out.println("Quelle objet voulez-vous utiliser?");
+            objet = sc.next();
+            objet = objet.toLowerCase();
+        }
+        System.out.println("Objet, veuillez utiliser");
+        System.out.println("x :");
+        int x = sc.nextInt();
+        System.out.println("y :");
+        int y = sc.nextInt();
+        while ((x < 0 || x >= LARGEUR) || (y >= HAUTEUR || y < 0) || cellules[x][y].level == Level.submerge) {
+            System.out.println("impossible");
+            System.out.println("x :");
+            x = sc.nextInt();
+            System.out.println("y :");
+            y = sc.nextInt();
+        }
+        switch (objet) {
+            case "helico" -> {
+                System.out.println("Voulez-vous emporter les autres joueurs avec vous ?");
+                objet = sc.next();
+                objet = objet.toLowerCase();
+                while (!objet.equals("oui") && !objet.equals("non")) {
+                    System.out.println("oui ou non ?");
+                    objet = sc.next();
+                    objet = objet.toLowerCase();
+                }
+                if (objet.equals("oui")) {
+                    for (Player p1 : joueurs.values()) {
+                        if (p1.posY == p.posY && p1.posX == p.posX) {
+                            p1.posY = y;
+                            p1.posX = x;
+                        }
+                    }
+                }
+                else{
+                    p.posY = y;
+                    p.posX = x;
+                }
+                p.objets.remove(objet);
+                if (p.actionObjet == 1) {
+                    p.actionObjet -= 1;
+                } else {
+                    p.action -= 1;
+                }
+            }
+            case "sable" -> {
+                if (cellules[x][y].level == Level.inonde) {
+                    cellules[x][y].level = Level.normal;
+                    p.objets.remove(objet);
+                    if (p.actionObjet == 1) {
+                        p.actionObjet -= 1;
+                    } else {
+                        p.action -= 1;
+                    }
+                }
+            }
+        }
     }
 }
 /**
@@ -722,7 +798,7 @@ class CVue {
          *  - Indiquer qu'on quitte l'application si la fenêtre est fermée.
          *  - Préciser que la fenêtre doit bien apparaître à l'écran.
          */
-        frame.setSize(1080,780);
+        frame.setSize(1080, 780);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
     }
@@ -828,14 +904,14 @@ class VueGrille extends JPanel implements Observer {
             i++;
         }
         if (!(c.artefact == null)) {
-            switch(c.artefact){
+            switch (c.artefact) {
                 case EAU -> g.setColor(Color.GRAY);
                 case FEU -> g.setColor(Color.red);
                 case TERRE -> g.setColor(Color.BLACK);
                 case AIR -> g.setColor(Color.pink);
             }
             //  g.drawOval(x, y, TAILLE*1, TAILLE*1);
-            g.fillOval(x, y, TAILLE*5 / 2, TAILLE*5 / 2);
+            g.fillOval(x, y, TAILLE * 5 / 2, TAILLE * 5 / 2);
         }
         if (c.heliport) {
             g.setColor(Color.pink);
@@ -899,11 +975,11 @@ class VueCommandes extends JPanel {
         boutonAvance.addActionListener(ctrl);
 
         panel.add(boutonAvance);
-        String direc[] ={"haut","bas","droite","gauche","haut-droite","haut-gauche","bas-droite","bas-gauche"};
-        for(String d:direc) {
+        String direc[] = {"haut", "bas", "droite", "gauche", "haut-droite", "haut-gauche", "bas-droite", "bas-gauche"};
+        for (String d : direc) {
             JButton droite = new JButton(d);
             panel.add(droite);
-            Droite droite1 = new Droite(modele,d);
+            Droite droite1 = new Droite(modele, d);
             droite.addActionListener(droite1);
         }
 
@@ -914,18 +990,18 @@ class VueCommandes extends JPanel {
         panel4.add(recupA);
         RecupA r = new RecupA(modele);
         recupA.addActionListener(r);
-        String a[] ={"haut","bas","droite","gauche","haut-droite","haut-gauche","bas-droite","bas-gauche"};
-        for (String s: a){
+        String a[] = {"haut", "bas", "droite", "gauche", "haut-droite", "haut-gauche", "bas-droite", "bas-gauche"};
+        for (String s : a) {
             JButton assecher = new JButton(s);
             panel3.add(assecher);
-            Assecher assecher1 = new Assecher(modele,s);
+            Assecher assecher1 = new Assecher(modele, s);
             assecher.addActionListener(assecher1);
         }
 
 
         JButton evasion = new JButton("Prendre l'hélico");
         panel4.add(evasion);
-        Evasion e  =  new Evasion(modele);
+        Evasion e = new Evasion(modele);
         evasion.addActionListener(e);
 
         JButton action = new JButton("Speciale");
@@ -942,11 +1018,17 @@ class VueCommandes extends JPanel {
         panel4.add(give);
         GiveKey g = new GiveKey(modele);
         give.addActionListener(g);
+
+        JButton objet = new JButton("Objet");
+        panel4.add(objet);
+        Objet o = new Objet(modele);
+        objet.addActionListener(o);
+
         this.add(panel4);
 
-        JPanel joueurs =  new JPanel(new GridLayout(1, 4, 20, 20));
-        for (Player p: modele.joueurs.values()){
-            JLabel label = new JLabel(p.name + " : " +p.action + ".\n");
+        JPanel joueurs = new JPanel(new GridLayout(1, 4, 20, 20));
+        for (Player p : modele.joueurs.values()) {
+            JLabel label = new JLabel(p.name + " : " + p.action + ".\n");
             joueurs.add(label);
         }
         //this.add(joueurs);
@@ -972,7 +1054,8 @@ class Droite implements ActionListener {
 
     CModele modele;
     private String direc;
-    public Droite(CModele modele,String direc) {
+
+    public Droite(CModele modele, String direc) {
         this.modele = modele;
         this.direc = direc;
     }
@@ -999,7 +1082,8 @@ class Assecher implements ActionListener {
 
     CModele modele;
     private String dir;
-    public Assecher(CModele modele,String dir) {
+
+    public Assecher(CModele modele, String dir) {
         this.modele = modele;
         this.dir = dir;
     }
@@ -1009,7 +1093,7 @@ class Assecher implements ActionListener {
     }
 }
 
-class Evasion implements  ActionListener{
+class Evasion implements ActionListener {
     CModele modele;
 
     public Evasion(CModele modele) {
@@ -1020,7 +1104,8 @@ class Evasion implements  ActionListener{
         modele.helico();
     }
 }
-class ActionSpeciale implements  ActionListener{
+
+class ActionSpeciale implements ActionListener {
     CModele modele;
 
     public ActionSpeciale(CModele modele) {
@@ -1031,7 +1116,8 @@ class ActionSpeciale implements  ActionListener{
         modele.actionSpeciale();
     }
 }
-class SearchKey implements  ActionListener{
+
+class SearchKey implements ActionListener {
     CModele modele;
 
     public SearchKey(CModele modele) {
@@ -1042,7 +1128,8 @@ class SearchKey implements  ActionListener{
         modele.searchKey();
     }
 }
-class GiveKey implements  ActionListener{
+
+class GiveKey implements ActionListener {
     CModele modele;
 
     public GiveKey(CModele modele) {
@@ -1051,5 +1138,17 @@ class GiveKey implements  ActionListener{
 
     public void actionPerformed(ActionEvent e) {
         modele.giveKey();
+    }
+}
+
+class Objet implements ActionListener {
+    CModele modele;
+
+    public Objet(CModele modele) {
+        this.modele = modele;
+    }
+
+    public void actionPerformed(ActionEvent e) {
+        modele.objet();
     }
 }

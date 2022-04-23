@@ -11,8 +11,10 @@ public class Player  {
     protected HashSet<Artefact> artefacts;
     protected ArrayList<Key> keys;
     protected float action = 3;
+    protected int actionObjet = 1;
     protected String name;
     protected Roles role;
+    protected ArrayList<String> objets = new ArrayList<>();
     public Player(int posX, int posY) {
         this.posX = posX;
         this.posY = posY;
@@ -25,9 +27,6 @@ public class Player  {
         this.name = name;
     }
 
-    public int getPosX() {
-        return posX;
-    }
 
     public void addArtefact(Artefact a) {
         this.artefacts.add(a);
@@ -53,6 +52,15 @@ public class Player  {
                 addKey(Key.TERRE);
                 System.out.println("Une clé a été ajoute à " + name+ " de type "+ Key.TERRE.name().toLowerCase());
             }
+            case 4 ->{
+                if(r.nextInt(2)==0){
+                    objets.add("sable");
+                    System.out.println("Sable ajouté");
+                }else{
+                    objets.add("helico");
+                    System.out.println("Helico ");
+                }
+            }
         }
     }
 
@@ -63,19 +71,16 @@ public class Player  {
 
 
 
-
-   /* public void assecher(int posX, int posY) {
-        modele.testLoose();
-        if(modele.loose){
-            return;
+    public void setRole(int role) {
+        switch (role){
+            case 1-> this.role = Roles.PILOTE;
+            case 2-> this.role = Roles.INGENIEUR;
+            case 3-> this.role = Roles.EXPLORATEUR;
+            case 4-> this.role = Roles.NAVIGATEUR;
+            case 5-> this.role = Roles.PLONGEUR;
+            case 6-> this.role = Roles.MESSAGER;
         }
-        if ((posX - 1 == this.posX | this.posX == posX + 1 | this.posX == posX) && (posY - 1 == this.posY | this.posY == posY + 1 | this.posY == posY)) {
-            if (modele.getCellule(posX,posY).getLevel().equals(Level.inonde)) {
-                modele.getCellule(posX,posY).level = Level.normal;
-                action-= 1;
-            }
-        }
-    }*/
+    }
 
 
 
@@ -95,15 +100,6 @@ public class Player  {
         }
     }
 
-    public void setRole(int role) {
-        switch (role){
-            case 1-> this.role = Roles.PILOTE;
-            case 2-> this.role = Roles.INGENIEUR;
-            case 3-> this.role = Roles.EXPLORATEUR;
-            case 4-> this.role = Roles.NAVIGATEUR;
-            case 5-> this.role = Roles.PLONGEUR;
-            case 6-> this.role = Roles.MESSAGER;
-        }
-    }
+
 }
 
