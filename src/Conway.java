@@ -3,12 +3,13 @@ import Enums.Key;
 import Enums.Level;
 import Enums.Roles;
 
+import java.awt.image.BufferedImage;
 import java.util.*;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 
-
+import Images.*;
 interface Observer {
 
 
@@ -56,6 +57,7 @@ class CModele extends Observable {
     protected HashMap<Integer, Player> joueurs = new HashMap<>();
     protected int tour = 0;
     private Cellule heliport;
+    protected Banque b = new Banque();
 
     public CModele() {
         creationJoueurs();
@@ -884,12 +886,11 @@ class VueGrille extends JPanel implements Observer {
      */
     private void paint(Graphics g, Cellule c, int x, int y) {
         switch (c.level) {
-            case normal -> g.setColor(Color.WHITE);
+            case normal -> g.drawImage(modele.b.img("jgl_normale"),x,y,TAILLE,TAILLE,null);
             case inonde -> g.setColor(Color.CYAN);
             case submerge -> g.setColor(Color.BLUE);
 
         }
-        g.fillRect(x, y, TAILLE, TAILLE);
         int i = 0;
         for (Player p : modele.joueurs.values()) {
             if (c.getX() == p.posX && c.getY() == p.posY) {
@@ -906,12 +907,11 @@ class VueGrille extends JPanel implements Observer {
         if (!(c.artefact == null)) {
             switch (c.artefact) {
                 case EAU -> g.setColor(Color.GRAY);
-                case FEU -> g.setColor(Color.red);
+                case FEU -> g.drawImage(modele.b.img("feu_normale"),x,y,TAILLE,TAILLE,null);
                 case TERRE -> g.setColor(Color.BLACK);
                 case AIR -> g.setColor(Color.pink);
             }
             //  g.drawOval(x, y, TAILLE*1, TAILLE*1);
-            g.fillOval(x, y, TAILLE * 5 / 2, TAILLE * 5 / 2);
         }
         if (c.heliport) {
             g.setColor(Color.pink);
