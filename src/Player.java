@@ -9,7 +9,7 @@ public class Player  {
     protected int posX;
     protected  int posY;
     protected HashSet<Artefact> artefacts;
-    protected HashSet<Key> keys;
+    protected ArrayList<Key> keys;
     protected int action = 3;
     protected String name;
     protected Roles role;
@@ -17,7 +17,7 @@ public class Player  {
         this.posX = posX;
         this.posY = posY;
         this.artefacts = new HashSet<>();
-        this.keys = new HashSet<>();
+        this.keys = new ArrayList<>();
         this.name = null;
     }
 
@@ -33,9 +33,9 @@ public class Player  {
         this.artefacts.add(a);
     }
 
-    public void addKeyHasard(){
+    public void addKeyHasard(int limit){
         Random r = new Random();
-        int rand = r.nextInt(16);
+        int rand = r.nextInt(limit);
         switch (rand) {
             case 0 -> {
                 addKey(Key.EAU);
@@ -46,8 +46,8 @@ public class Player  {
                 System.out.println("Une clé a été ajoute à " + name + " de type "+ Key.AIR.name().toLowerCase());
             }
             case 2 -> {
-                addKey(Key.FUEGO);
-                System.out.println("Une clé a été ajoute à " + name+ " de type "+ Key.FUEGO.name().toLowerCase());
+                addKey(Key.FEU);
+                System.out.println("Une clé a été ajoute à " + name+ " de type "+ Key.FEU.name().toLowerCase());
             }
             case 3 -> {
                 addKey(Key.TERRE);

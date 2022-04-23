@@ -1,7 +1,7 @@
 package Enums;
 
 public enum Key {
-    EAU, AIR, TERRE, FUEGO
+    EAU, AIR, TERRE, FEU
 
 
 }

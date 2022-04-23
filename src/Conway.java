@@ -69,8 +69,8 @@ class CModele extends Observable {
         }
         ArrayList<Cellule> temp = new ArrayList<>();
         Random r = new Random();
-        int x = r.nextInt(cellules.length);
-        int y =r.nextInt(cellules.length);
+        int x = r.nextInt(LARGEUR);
+        int y =r.nextInt(HAUTEUR);
         this.heliport = cellules[x][y];
         heliport.heliport = true;
         temp.add(heliport);
@@ -78,8 +78,8 @@ class CModele extends Observable {
         init(Artefact.EAU,temp);
         init(Artefact.AIR,temp);
         init(Artefact.AIR,temp);
-        init(Artefact.FUEGO,temp);
-        init(Artefact.FUEGO,temp);
+        init(Artefact.FEU,temp);
+        init(Artefact.FEU,temp);
         init(Artefact.TERRE,temp);
         init(Artefact.TERRE,temp);
     }
@@ -112,6 +112,8 @@ class CModele extends Observable {
         joueursSetRoles();
     }
 
+
+
     private ArrayList<String> createNames(int nb, Scanner sc) {
         ArrayList<String> noms = new ArrayList<>();
         for (int i = 1; i <= nb; i++) {
@@ -131,6 +133,7 @@ class CModele extends Observable {
             case 2 -> {
                 joueurs.put(0, new Player(0, 0));
                 joueurs.put(1, new Player(0, 1));
+                joueurs.get(1).addKey(Key.EAU);
             }
             case 3 -> {
                 joueurs.put(0, new Player(0, 0));
@@ -194,7 +197,7 @@ class CModele extends Observable {
             System.out.println("Il vous reste encore " + joueurs.get(tour).action + " action à faire ");
             return;
         }
-        joueurs.get(tour).addKeyHasard();
+        joueurs.get(tour).addKeyHasard(16);
         Random random = new Random();
         ArrayList<Cellule> res = new ArrayList<>();
         while (res.size() < 3) {
@@ -203,7 +206,6 @@ class CModele extends Observable {
             Cellule c = getCellule(x, y);
             if (!getCellule(x, y).getLevel().equals(Level.submerge) && countEtats()>=3) {
                 getCellule(x, y).evolue();
-                System.out.println(x + "," + y);
                 res.add(c);
             }
             if(countEtats()<3){
@@ -236,10 +238,38 @@ class CModele extends Observable {
         }
     }
 
+    public void searchKey(){testLoose();
+        if (joueurs.get(tour).action == 0 || this.loose) {
+            return;
+        }
+        Player p = joueurs.get(tour);
+        Random r = new Random();
+        switch (r.nextInt(2)){
+            case 0-> {
+                ArrayList<Cellule> res = new ArrayList<>();
+                while (res.size() < 3) {
+                    int x = r.nextInt(LARGEUR);
+                    int y = r.nextInt(LARGEUR);
+                    Cellule c = getCellule(x, y);
+                    if (!getCellule(x, y).getLevel().equals(Level.submerge) && countEtats()>=3) {
+                        getCellule(x, y).evolue();
+                        res.add(c);
+                    }
+                    if(countEtats()<3){
+                        res.add(c);
+                    }
+                }
+            }
+            case 1-> p.addKeyHasard(3);
+            case 2 -> System.out.println("Rien ne s'est passée...");
+        }
+        p.action -=1;
+    }
+
     public void helico() {
         int arte = 0;
         testLoose();
-        if (loose) {
+        if (joueurs.get(tour).action == 0 || this.loose) {
             return;
         }
         for (Player p :
@@ -328,6 +358,7 @@ class CModele extends Observable {
             case PLONGEUR ->
                     System.out.println("Vous pouvez traverser les cases submergées, cela coùte une action");
             case NAVIGATEUR -> navigateur();
+            case MESSAGER -> messager();
         }
     }
 
@@ -382,6 +413,33 @@ class CModele extends Observable {
 
         }
         joueurs.get(tour).action -= 1;
+    }
+    private void messager(){
+        Player p = joueurs.get(tour);
+        if(p.keys.size() == 0) return;
+        Scanner sc = new Scanner(System.in);
+        System.out.println("Quelle clé voulez-vous donner,entrez le type?");
+        String key = sc.next();
+        key = key.toLowerCase();
+        while(!key.equals("eau") && !key.equals("terre") && !key.equals("feu") && !key.equals("air")){
+            System.out.println("Quelle clé voulez-vous donner,entrez le type?");
+            key = sc.next();
+            key = key.toLowerCase();
+        }
+        if(!p.keys.contains(Key.valueOf(key.toUpperCase(Locale.ROOT)))){
+            System.out.println("Vous n'avez pas ce type de clé");
+            return;
+        }
+        p.keys.remove(Key.valueOf(key.toUpperCase(Locale.ROOT)));
+        System.out.println("Entrez le numéro du joueur ciblé");
+        int num = sc.nextInt()-1;
+        while (num < 0 || num+1 > joueurs.size() || num ==tour) {
+            System.out.println("Retapez le numéro svp :)");
+            num = sc.nextInt()-1;
+        }
+        joueurs.get(num).addKey(Key.valueOf(key.toUpperCase(Locale.ROOT)));
+        System.out.println("Le joueur " + joueurs.get(num).name + " A reçu la clé " + Key.valueOf(key.toUpperCase(Locale.ROOT)));
+        p.action-=1;
     }
     /**
      * Notez qu'à l'intérieur de la classe [CModele], la classe interne est
@@ -678,15 +736,13 @@ class VueGrille extends JPanel implements Observer {
                     case 3 -> g.setColor(Color.black);
                 }
                 g.fillOval(x, y, TAILLE / 2, TAILLE / 2);
-
-                //System.out.println(p.posX+","+p.posY);
             }
             i++;
         }
         if (!(c.artefact == null)) {
             switch(c.artefact){
                 case EAU -> g.setColor(Color.GRAY);
-                case FUEGO -> g.setColor(Color.red);
+                case FEU -> g.setColor(Color.red);
                 case TERRE -> g.setColor(Color.BLACK);
                 case AIR -> g.setColor(Color.pink);
             }
@@ -806,6 +862,12 @@ class VueCommandes extends JPanel {
         panel4.add(action);
         ActionSpeciale speciale = new ActionSpeciale(modele);
         action.addActionListener(speciale);
+
+        JButton search = new JButton("chercher clé");
+        panel4.add(search);
+        SearchKey s = new SearchKey(modele);
+        search.addActionListener(s);
+
         this.add(panel4);
 
         JPanel joueurs =  new JPanel(new GridLayout(1, 4, 20, 20));
@@ -930,5 +992,16 @@ class ActionSpeciale implements  ActionListener{
 
     public void actionPerformed(ActionEvent e) {
         modele.actionSpeciale();
+    }
+}
+class SearchKey implements  ActionListener{
+    CModele modele;
+
+    public SearchKey(CModele modele) {
+        this.modele = modele;
+    }
+
+    public void actionPerformed(ActionEvent e) {
+        modele.searchKey();
     }
 }
