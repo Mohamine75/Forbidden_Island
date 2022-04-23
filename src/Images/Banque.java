@@ -174,7 +174,7 @@ public class Banque {
     public static Image eau_inonde;
     static {
         try {
-            eau_inonde = ImageIO.read(new File("src/Images/p4.png"));
+            eau_inonde = ImageIO.read(new File("src/Images/eau_inonde.jpg"));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -182,7 +182,7 @@ public class Banque {
     public static Image terre_inonde;
     static {
         try {
-            terre_inonde = ImageIO.read(new File("src/Images/p4.png"));
+            terre_inonde = ImageIO.read(new File("src/Images/terre_inonde.jpg"));
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -7,7 +7,10 @@ import java.awt.image.BufferedImage;
 import java.util.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.concurrent.TimeUnit;
 import javax.swing.*;
+import javax.swing.border.Border;
+import javax.swing.border.CompoundBorder;
 
 import Images.*;
 
@@ -51,7 +54,7 @@ public class Conway {
 
 
 class CModele extends Observable {
-    public static final int HAUTEUR = 6, LARGEUR = 6;
+    public static final int HAUTEUR = 5, LARGEUR = 5;
     private final Cellule[][] cellules;
     protected boolean win = false;
     protected boolean loose = false;
@@ -59,6 +62,8 @@ class CModele extends Observable {
     protected int tour = 0;
     protected Banque b = new Banque();
     private Cellule heliport;
+    protected int width = 1920;
+    protected int height = 1080;
 
     public CModele() {
         creationJoueurs();
@@ -193,10 +198,16 @@ class CModele extends Observable {
         }
     }
 
-    public void avance() {
+    public void avance() throws InterruptedException {
         testLoose();
-        if (joueurs.get(tour).action != 0 || loose) {
+        if (joueurs.get(tour).action > 0.5 || loose) {
             System.out.println("Il vous reste encore " + joueurs.get(tour).action + " action à faire ");
+            return;
+        }
+        if (this.win){
+            System.out.println("Bravo, le jeu est gagné :)");
+            TimeUnit.SECONDS.sleep(10);
+            System.exit(0);
             return;
         }
         joueurs.get(tour).addKeyHasard(16);
@@ -242,9 +253,15 @@ class CModele extends Observable {
         }
     }
 
-    public void searchKey() {
+    public void searchKey() throws InterruptedException {
         testLoose();
         if (joueurs.get(tour).action - 1 < 0 || this.loose) {
+            return;
+        }
+        if (this.win){
+            System.out.println("Bravo, le jeu est gagné :)");
+            TimeUnit.SECONDS.sleep(10);
+            System.exit(0);
             return;
         }
         Player p = joueurs.get(tour);
@@ -271,62 +288,79 @@ class CModele extends Observable {
         p.action -= 1;
     }
 
-    public void helico() {
-        int arte = 0;
+    public void helico() throws InterruptedException {
+         ArrayList<Artefact> a = new ArrayList<>();
         testLoose();
+        if (this.win){
+            System.out.println("Bravo, le jeu est gagné :)");
+            TimeUnit.SECONDS.sleep(10);
+            System.exit(0);
+            return;
+        }
         if (joueurs.get(tour).action - 1 < 0 || this.loose) {
             return;
         }
-        for (Player p :
-                joueurs.values()) {
+
+        for (Player p : joueurs.values()) {
             if (heliport.x == p.posX && heliport.y == p.posY) {
-                arte += p.artefacts.size();
+                for (Artefact artefact : p.artefacts){
+                    if(!a.contains(artefact)){
+                        a.add(artefact);
+                    }
+                }
             } else {
                 System.out.println("Un joueur n'est pas sur l'héliport, veuillez vous regrouper");
                 return;
             }
         }
-        if (arte == 4) {
+        if (a.size() == 4) {
             System.out.println("Bravo, partie gagnée");
             win = true;
+            helico();
         }
         System.out.println("Les conditions ne sont pas réunies.");
 
     }
 
 
-    public void move(String direction) {
+    public void move(String direction) throws InterruptedException {
         testLoose();
         if (joueurs.get(tour).action - 1 < 0 || this.loose) {
+            return;
+        }
+        if (this.win){
+            System.out.println("Bravo, le jeu est gagné :)");
+            TimeUnit.SECONDS.sleep(10);
+            System.exit(0);
             return;
         }
         Player p = joueurs.get(tour);
         int y = p.posY;
         int x = p.posX;
         switch (direction) {
-            case "haut" -> y = p.posY - 1;
-            case "bas" -> y = p.posY + 1;
-            case "droite" -> x = p.posX + 1;
-            case "gauche" -> x = p.posX - 1;
-            case "haut-droite" -> {
+            case "⬆" -> y = p.posY - 1;
+            case "⬇" -> y = p.posY + 1;
+            case "➡" -> x = p.posX + 1;
+            case "⬅" -> x = p.posX - 1;
+            case "⬈" -> {
                 if (p.role == Roles.EXPLORATEUR) {
                     y = p.posY - 1;
                     x = p.posX + 1;
                 }
             }
-            case "bas-droite" -> {
+            case "⬊" -> {
                 if (p.role == Roles.EXPLORATEUR) {
                     y = p.posY + 1;
                     x = p.posX + 1;
                 }
             }
-            case "bas-gauche" -> {
+            case "⬋" -> {
                 if (p.role == Roles.EXPLORATEUR) {
                     y = p.posY + 1;
                     x = p.posX - 1;
                 }
             }
-            case "haut-gauche" -> {
+            case "⬉" -> {
                 if (p.role == Roles.EXPLORATEUR) {
                     y = p.posY - 1;
                     x = p.posX - 1;
@@ -352,44 +386,52 @@ class CModele extends Observable {
         return cellules[x][y];
     }
 
-    protected void assecher(String direction) {
-        if (joueurs.get(tour).action - 1 < 0 || loose) {
+    protected void assecher(String direction) throws InterruptedException {
+        if (joueurs.get(tour).action < 0.5 || loose) {
             return;
         }
-
+        if (this.win){
+            System.out.println("Bravo, le jeu est gagné :)");
+            TimeUnit.SECONDS.sleep(10);
+            System.exit(0);
+            return;
+        }
         Player p = joueurs.get(tour);
         int x = p.posX;
         int y = p.posY;
-
+        this.win = true;
         switch (direction) {
-            case "haut" -> y = p.posY - 1;
-            case "bas" -> y = p.posY + 1;
-            case "droite" -> x = p.posX + 1;
-            case "gauche" -> x = p.posX - 1;
-            case "haut-droite" -> {
-                if (p.role == Roles.EXPLORATEUR) {
-                    y = p.posY + 1;
-                    x = p.posX + 1;
-                }
+            case "⬆" -> y = p.posY - 1;
+            case "⬇" -> y = p.posY + 1;
+            case "➡" -> x = p.posX + 1;
+            case "⬅" -> x = p.posX - 1;
+            case "⬛" -> {
             }
-            case "bas-droite" -> {
+            case "⬈" -> {
                 if (p.role == Roles.EXPLORATEUR) {
                     y = p.posY - 1;
                     x = p.posX + 1;
                 }
             }
-            case "bas-gauche" -> {
+            case "⬊" -> {
                 if (p.role == Roles.EXPLORATEUR) {
-                    y = p.posY - 1;
-                    x = p.posX - 1;
+                    y = p.posY + 1;
+                    x = p.posX + 1;
                 }
             }
-            case "haut-gauche" -> {
+            case "⬋" -> {
                 if (p.role == Roles.EXPLORATEUR) {
                     y = p.posY + 1;
                     x = p.posX - 1;
                 }
             }
+            case "⬉" -> {
+                if (p.role == Roles.EXPLORATEUR) {
+                    y = p.posY - 1;
+                    x = p.posX - 1;
+                }
+            }
+
         }
         if ((x < 0 || x >= HAUTEUR) || (y >= HAUTEUR || y < 0)) {
             System.out.println("La Case est en dehors de la grille");
@@ -408,7 +450,13 @@ class CModele extends Observable {
         }
     }
 
-    public void actionSpeciale() {
+    public void actionSpeciale() throws InterruptedException {
+        if (this.win){
+            System.out.println("Bravo, le jeu est gagné :)");
+            TimeUnit.SECONDS.sleep(10);
+            System.exit(0);
+            return;
+        }
         if (joueurs.get(tour).action - 1 < 0 || loose) {
             return;
         }
@@ -551,8 +599,14 @@ class CModele extends Observable {
         return false;
     }
 
-    public void recupererArtefact() {
+    public void recupererArtefact() throws InterruptedException {
         if (joueurs.get(tour).action == 0 || loose) {
+            return;
+        }
+        if (this.win){
+            System.out.println("Bravo, le jeu est gagné :)");
+            TimeUnit.SECONDS.sleep(10);
+            System.exit(0);
             return;
         }
         Player p = joueurs.get(tour);
@@ -570,7 +624,7 @@ class CModele extends Observable {
         System.out.println("aucun Artefact non récupéré ");
     }
 
-    public void recupKey() {
+    public void recupKey() throws InterruptedException {
         Player p = joueurs.get(tour);
         p.action -= 1;
         if (null != getCellule(p.posX, p.posY).key) {
@@ -592,7 +646,13 @@ class CModele extends Observable {
     }
 
 
-    public void objet() {
+    public void objet() throws InterruptedException {
+        if (this.win){
+            System.out.println("Bravo, le jeu est gagné :)");
+            TimeUnit.SECONDS.sleep(10);
+            System.exit(0);
+            return;
+        }
         Player p = joueurs.get(tour);
         if ((p.action == 0 && p.actionObjet == 0) || loose) {
             return;
@@ -800,7 +860,8 @@ class CVue {
          *  - Indiquer qu'on quitte l'application si la fenêtre est fermée.
          *  - Préciser que la fenêtre doit bien apparaître à l'écran.
          */
-        frame.setSize(1080, 780);
+
+        frame.setSize(modele.width, modele.height);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
     }
@@ -874,6 +935,7 @@ class VueGrille extends JPanel implements Observer {
                 paint(g, modele.getCellule(i, j), (i) * TAILLE + 1, (j) * TAILLE + 1);
             }
         }
+
     }
 
 
@@ -916,10 +978,13 @@ class VueGrille extends JPanel implements Observer {
             if(c.level == Level.normal) {
                 g.drawImage(modele.b.img("helico"), x, y, TAILLE, TAILLE, null);
             }
-            else{
+            else if(c.level == Level.inonde) {
                 g.drawImage(modele.b.img("helico_inonde"), x, y, TAILLE, TAILLE, null);
+                }
+            else{
+                g.drawImage(modele.b.img("submerge"), x, y, TAILLE, TAILLE, null);
+                }
             }
-        }
         for (Player p : modele.joueurs.values()) {
             if (c.getX() == p.posX && c.getY() == p.posY) {
                 switch (i) {
@@ -931,125 +996,114 @@ class VueGrille extends JPanel implements Observer {
             }
             i++;
         }
+        Player p =  modele.joueurs.get(modele.tour);
+        g.clearRect(TAILLE,TAILLE*6,200,100);
+        g.setFont(g.getFont().deriveFont(Font.BOLD));
+        g.drawString("Nom du Joueur :   " + p.name,TAILLE,TAILLE *6+ 10);
+        g.drawString("Role :   " + p.role,TAILLE,TAILLE *6+ 30);
+        g.drawString("Actions : " + p.action, TAILLE,(TAILLE * 6 )+ 50);
+        g.drawString(" Artefacts : " + p.artefacts , TAILLE ,(TAILLE * 6 )+ 70);
+        g.drawString(" Keys : " + p.keys , TAILLE ,(TAILLE * 6 )+ 90);
+
     }
 }
 
 
-/**
- * Une classe pour représenter la zone contenant le bouton.
- * <p>
- * Cette zone n'aura pas à être mise à jour et ne sera donc pas un observateur.
- * En revanche, comme la zone précédente, celle-ci est un panneau [JPanel].
- */
 class VueCommandes extends JPanel {
     /**
      * Pour que le bouton puisse transmettre ses ordres, on garde une
      * référence au modèle.
      */
     private final CModele modele;
+    private final String[] directions = {"⬉","⬆","⬈","⬅","⬛","➡","⬋","⬇","⬊"};
 
     /**
      * Constructeur.
      */
     public VueCommandes(CModele modele) {
+        this.setLayout(new FlowLayout(FlowLayout.LEFT,0,0));
         this.modele = modele;
 
-        JPanel panel = new JPanel(new GridLayout(2, 2, 20, 20));
-        JButton boutonAvance = new JButton("Fin de tour");
+        Border empty = BorderFactory.createEmptyBorder(10, 10, 10, 10);
+        Border blackLine = BorderFactory.createLineBorder(Color.black);
+        CompoundBorder line = new CompoundBorder(empty, blackLine);
 
-        JPanel border = new JPanel(new GridLayout(1, 1, 10, 10));
-        JPanel panel2 = new JPanel(new GridLayout(1, 1, 20, 20));
-        JPanel panel3 = new JPanel(new GridLayout(2, 2, 20, 20));
-        JPanel panel4 = new JPanel(new GridLayout(1, 3, 20, 20));
-
-        /**
-         * Le bouton, lorsqu'il est cliqué par l'utilisateur, produit un
-         * événement, de classe [ActionEvent].
-         *
-         * On a ici une variante du schéma observateur/observé : un objet
-         * implémentant une interface [ActionListener] va s'inscrire pour
-         * "écouter" les événements produits par le bouton, et recevoir
-         * automatiquements des notifications.
-         * D'autres variantes d'auditeurs pour des événements particuliers :
-         * [MouseListener], [KeyboardListener], [WindowListener].
-         *
-         * Cet observateur va enrichir notre schéma Modèle-Vue d'une couche
-         * intermédiaire Contrôleur, dont l'objectif est de récupérer les
-         * événements produits par la vue et de les traduire en instructions
-         * pour le modèle.
-         * Cette strate intermédiaire est potentiellement riche, et peut
-         * notamment traduire les mêmes événements de différentes façons en
-         * fonction d'un état de l'application.
-         * Ici nous avons un seul bouton réalisant une seule action, notre
-         * contrôleur sera donc particulièrement simple. Cela nécessite
-         * néanmoins la création d'une classe dédiée.
-         */
         Controleur ctrl = new Controleur(modele);
-        /** Enregistrement du contrôleur comme auditeur du bouton. */
-        boutonAvance.addActionListener(ctrl);
 
-        panel.add(boutonAvance);
-        String direc[] = {"haut", "bas", "droite", "gauche", "haut-droite", "haut-gauche", "bas-droite", "bas-gauche"};
-        for (String d : direc) {
-            JButton droite = new JButton(d);
-            panel.add(droite);
-            Droite droite1 = new Droite(modele, d);
-            droite.addActionListener(droite1);
+        drawMoveButtons(line);
+        drawDryUpButtons(line);
+        drawActionButtons(line);
+        drawEndOfTurn();
+
+    }
+
+    void drawMoveButtons(CompoundBorder line){
+        JPanel moveButtons = new JPanel(new GridLayout(3, 3, 10, 5));
+        Border moveBorder = BorderFactory.createTitledBorder(line, "MOVE");
+        for (String direc : directions){
+            JButton move = new JButton(direc);
+            moveButtons.add(move);
+            Droite d = new Droite(modele,direc);
+            move.addActionListener(d);
         }
+        moveButtons.setBorder(moveBorder);
+        this.add(moveButtons);
+    }
 
-
-        this.add(panel);
-        this.add(border);
-        JButton recupA = new JButton("Recup Artefact");
-        panel4.add(recupA);
-        RecupA r = new RecupA(modele);
-        recupA.addActionListener(r);
-        String a[] = {"haut", "bas", "droite", "gauche", "haut-droite", "haut-gauche", "bas-droite", "bas-gauche"};
-        for (String s : a) {
-            JButton assecher = new JButton(s);
-            panel3.add(assecher);
-            Assecher assecher1 = new Assecher(modele, s);
-            assecher.addActionListener(assecher1);
+    void drawDryUpButtons(CompoundBorder line){
+        JPanel dryupButtons = new JPanel(new GridLayout(3, 3, 10, 5));
+        Border moveBorder = BorderFactory.createTitledBorder(line, "DRY UP");
+        for (String direc : directions){
+            JButton dry = new JButton(direc);
+            dryupButtons.add(dry);
+            Assecher assecher = new Assecher(modele,direc);
+            dry.addActionListener(assecher);
         }
+        dryupButtons.setBorder(moveBorder);
+        this.add(dryupButtons);
+    }
 
-
-        JButton evasion = new JButton("Prendre l'hélico");
-        panel4.add(evasion);
-        Evasion e = new Evasion(modele);
-        evasion.addActionListener(e);
-
-        JButton action = new JButton("Speciale");
-        panel4.add(action);
-        ActionSpeciale speciale = new ActionSpeciale(modele);
-        action.addActionListener(speciale);
-
-        JButton search = new JButton("chercher clé");
-        panel4.add(search);
-        SearchKey s = new SearchKey(modele);
-        search.addActionListener(s);
-
-        JButton give = new JButton("giveKey");
-        panel4.add(give);
-        GiveKey g = new GiveKey(modele);
-        give.addActionListener(g);
-
-        JButton objet = new JButton("Objet");
-        panel4.add(objet);
+    void drawActionButtons(CompoundBorder line){
+        JPanel actionButtons = new JPanel(new GridLayout(3, 2, 10, 5));
+        Border actionBorder = BorderFactory.createTitledBorder(line, "ACTIONS");
+        JButton key = new JButton("prendre clé");
+        actionButtons.add(key);
+        SearchKey search = new SearchKey(modele);
+        key.addActionListener(search);
+        JButton give = new JButton("Donner clé");
+        actionButtons.add(give);
+        GiveKey giveKey = new GiveKey(modele);
+        give.addActionListener(giveKey);
+        JButton recup = new JButton("récuperer artéfact");
+        actionButtons.add(recup);
+        RecupA recupA = new RecupA(modele);
+        recup.addActionListener(recupA);
+        JButton helico = new JButton("prendre hélicoptère");
+        actionButtons.add(helico);
+        Evasion h = new Evasion(modele);
+        helico.addActionListener(h);
+        JButton objet = new JButton("objet");
+        actionButtons.add(objet);
         Objet o = new Objet(modele);
         objet.addActionListener(o);
-
-        this.add(panel4);
-
-        JPanel joueurs = new JPanel(new GridLayout(1, 4, 20, 20));
-        for (Player p : modele.joueurs.values()) {
-            JLabel label = new JLabel(p.name + " : " + p.action + ".\n");
-            joueurs.add(label);
-        }
-        //this.add(joueurs);
-        this.add(panel3);
+        JButton ultime = new JButton("ultimate");
+        actionButtons.add(ultime);
+        ActionSpeciale spe = new ActionSpeciale(modele);
+        ultime.addActionListener(spe);
+        actionButtons.setBorder(actionBorder);
+        this.add(actionButtons);
+    }
+    void drawEndOfTurn(){
+        JPanel endOfTurnButton = new JPanel();
+        JButton end = new JButton("Fin de tour");
+        endOfTurnButton.add(end);
+        Controleur c = new Controleur(modele);
+        end.addActionListener(c);
+        this.add(endOfTurnButton);
     }
 
 }
+
 
 class Controleur implements ActionListener {
 
@@ -1060,7 +1114,11 @@ class Controleur implements ActionListener {
     }
 
     public void actionPerformed(ActionEvent e) {
-        modele.avance();
+        try {
+            modele.avance();
+        } catch (InterruptedException ex) {
+            ex.printStackTrace();
+        }
     }
 }
 
@@ -1075,7 +1133,11 @@ class Droite implements ActionListener {
     }
 
     public void actionPerformed(ActionEvent e) {
-        modele.move(direc);
+        try {
+            modele.move(direc);
+        } catch (InterruptedException ex) {
+            ex.printStackTrace();
+        }
     }
 }
 
@@ -1088,7 +1150,11 @@ class RecupA implements ActionListener {
     }
 
     public void actionPerformed(ActionEvent e) {
-        modele.recupererArtefact();
+        try {
+            modele.recupererArtefact();
+        } catch (InterruptedException ex) {
+            ex.printStackTrace();
+        }
     }
 }
 
@@ -1103,7 +1169,11 @@ class Assecher implements ActionListener {
     }
 
     public void actionPerformed(ActionEvent e) {
-        modele.assecher(dir);
+        try {
+            modele.assecher(dir);
+        } catch (InterruptedException ex) {
+            ex.printStackTrace();
+        }
     }
 }
 
@@ -1115,7 +1185,11 @@ class Evasion implements ActionListener {
     }
 
     public void actionPerformed(ActionEvent e) {
-        modele.helico();
+        try {
+            modele.helico();
+        } catch (InterruptedException ex) {
+            ex.printStackTrace();
+        }
     }
 }
 
@@ -1127,7 +1201,11 @@ class ActionSpeciale implements ActionListener {
     }
 
     public void actionPerformed(ActionEvent e) {
-        modele.actionSpeciale();
+        try {
+            modele.actionSpeciale();
+        } catch (InterruptedException ex) {
+            ex.printStackTrace();
+        }
     }
 }
 
@@ -1139,7 +1217,11 @@ class SearchKey implements ActionListener {
     }
 
     public void actionPerformed(ActionEvent e) {
-        modele.searchKey();
+        try {
+            modele.searchKey();
+        } catch (InterruptedException ex) {
+            ex.printStackTrace();
+        }
     }
 }
 
@@ -1163,6 +1245,10 @@ class Objet implements ActionListener {
     }
 
     public void actionPerformed(ActionEvent e) {
-        modele.objet();
+        try {
+            modele.objet();
+        } catch (InterruptedException ex) {
+            ex.printStackTrace();
+        }
     }
 }
