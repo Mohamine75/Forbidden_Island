@@ -239,7 +239,7 @@ class CModele extends Observable {
     }
 
     public void searchKey(){testLoose();
-        if (joueurs.get(tour).action == 0 || this.loose) {
+        if (joueurs.get(tour).action-1 < 0 || this.loose) {
             return;
         }
         Player p = joueurs.get(tour);
@@ -269,7 +269,7 @@ class CModele extends Observable {
     public void helico() {
         int arte = 0;
         testLoose();
-        if (joueurs.get(tour).action == 0 || this.loose) {
+        if (joueurs.get(tour).action-1 < 0 || this.loose) {
             return;
         }
         for (Player p :
@@ -292,17 +292,42 @@ class CModele extends Observable {
 
     public void move(String direction) {
         testLoose();
-        if (joueurs.get(tour).action == 0 || this.loose) {
+        if (joueurs.get(tour).action-1 < 0 || this.loose) {
             return;
         }
         Player p = joueurs.get(tour);
         int y = p.posY;
         int x = p.posX;
         switch (direction) {
-            case "haut" -> y = p.posY + 1;
-            case "bas" -> y = p.posY - 1;
+            case "haut" -> y = p.posY - 1;
+            case "bas" -> y = p.posY + 1;
             case "droite" -> x = p.posX + 1;
             case "gauche" -> x = p.posX - 1;
+            case "haut-droite"-> {
+                if (p.role == Roles.EXPLORATEUR) {
+                    y = p.posY - 1;
+                    x = p.posX + 1;
+                }
+            }
+            case "bas-droite"->{
+                if (p.role == Roles.EXPLORATEUR) {
+                    y = p.posY + 1;
+                    x = p.posX + 1;
+                }
+            }
+            case "bas-gauche"->{
+                if (p.role == Roles.EXPLORATEUR) {
+                    y = p.posY + 1;
+                    x = p.posX - 1;
+                }
+            }
+            case "haut-gauche"->{
+                if (p.role == Roles.EXPLORATEUR) {
+                    y = p.posY - 1;
+                    x = p.posX - 1;
+                }
+            }
+
         }
         if ((x < 0 || x >= HAUTEUR) || (y >= HAUTEUR || y < 0)) {
             System.out.println("Out of Bounds");
@@ -323,7 +348,7 @@ class CModele extends Observable {
     }
 
     protected void assecher(String direction) {
-        if (joueurs.get(tour).action == 0 || loose) {
+        if (joueurs.get(tour).action - 1 < 0 || loose) {
             return;
         }
 
@@ -331,11 +356,35 @@ class CModele extends Observable {
         int x = p.posX;
         int y = p.posY;
 
-        switch (direction){
+        switch (direction) {
             case "haut" -> y = p.posY - 1;
             case "bas" -> y = p.posY + 1;
             case "droite" -> x = p.posX + 1;
             case "gauche" -> x = p.posX - 1;
+            case "haut-droite"-> {
+                if (p.role == Roles.EXPLORATEUR) {
+                    y = p.posY + 1;
+                    x = p.posX + 1;
+                }
+            }
+            case "bas-droite"->{
+                if (p.role == Roles.EXPLORATEUR) {
+                    y = p.posY - 1;
+                    x = p.posX + 1;
+                }
+            }
+            case "bas-gauche"->{
+                if (p.role == Roles.EXPLORATEUR) {
+                    y = p.posY - 1;
+                    x = p.posX - 1;
+                }
+            }
+            case "haut-gauche"->{
+                if (p.role == Roles.EXPLORATEUR) {
+                    y = p.posY + 1;
+                    x = p.posX - 1;
+                }
+            }
         }
         if ((x < 0 || x >= HAUTEUR) || (y >= HAUTEUR || y < 0)) {
             System.out.println("La Case est en dehors de la grille");
@@ -343,13 +392,19 @@ class CModele extends Observable {
         }
         if (cellules[x][y].level == Level.inonde) {
             cellules[x][y].level = Level.normal;
-            p.action -= 1;
-                }
-        System.out.println("La case demandée est submergée ou à l'état normale...");
+            if (p.role != Roles.INGENIEUR) {
+                p.action -= 1;
+            } else {
+                p.action -= 0.5;
+            }
+        } else {
+
+            System.out.println("La case demandée est submergée ou à l'état normale...");
+        }
     }
 
     public void actionSpeciale(){
-        if (joueurs.get(tour).action == 0 || loose) {
+        if (joueurs.get(tour).action-1 < 0 || loose) {
             return;
         }
         switch(joueurs.get(tour).role){
@@ -359,6 +414,8 @@ class CModele extends Observable {
                     System.out.println("Vous pouvez traverser les cases submergées, cela coùte une action");
             case NAVIGATEUR -> navigateur();
             case MESSAGER -> messager();
+            case INGENIEUR -> System.out.println("Vous pouvez assecher 2 zones pour 1 action");
+            case EXPLORATEUR -> System.out.println("Vous pouvez vous déplacer et assécher en diagonale");
         }
     }
 
@@ -397,14 +454,14 @@ class CModele extends Observable {
         System.out.println("Vous voulez le déplacer en x ou en y ?");
         switch (sc.next()) {
             case "x" -> {
-                while (p.posX + xy >= LARGEUR || (p.posX - xy < 0) || (xy > 2) || (xy < -2)) {
+                while (p.posX + xy >= LARGEUR || (xy<0 && p.posX + xy < 0) || (xy > 2) || (xy < -2)) {
                     System.out.println("Entrez le nombre à addition (peut être négatif)");
                     xy = sc.nextInt();
                 }
                 p.posX = p.posX + xy;
             }
             case "y" -> {
-                while (p.posY + xy >= HAUTEUR || (p.posY - xy < 0) || (xy > 2) || (xy < -2)) {
+                while (p.posY - xy >= HAUTEUR || (xy>0 && p.posY - xy < 0) || (xy > 2) || (xy < -2)) {
                     System.out.println("Entrez le nombre à addition (peut être négatif)");
                     xy = sc.nextInt();
                 }
@@ -440,6 +497,37 @@ class CModele extends Observable {
         joueurs.get(num).addKey(Key.valueOf(key.toUpperCase(Locale.ROOT)));
         System.out.println("Le joueur " + joueurs.get(num).name + " A reçu la clé " + Key.valueOf(key.toUpperCase(Locale.ROOT)));
         p.action-=1;
+    }
+
+    public void giveKey(){
+        Player p = joueurs.get(tour);
+        if (p.action-1 < 0 || loose || p.keys.size()==0) {
+            return;
+        }
+        Scanner sc = new Scanner(System.in);
+        System.out.println("Quelle clé voulez-vous donner,entrez le type?");
+        String key = sc.next();
+        key = key.toLowerCase();
+        while(!key.equals("eau") && !key.equals("terre") && !key.equals("feu") && !key.equals("air")){
+            System.out.println("Quelle clé voulez-vous donner,entrez le type?");
+            key = sc.next();
+            key = key.toLowerCase();
+        }
+        Key k = Key.valueOf(key.toUpperCase(Locale.ROOT));
+        if(!p.keys.contains(k)){
+            System.out.println("Vous n'avez pas ce type de clé");
+            return;
+        }
+        for(Player x : joueurs.values()) {
+            if(x.posX == p.posX && p.posY == x.posY && !x.name.equals(p.name)) {
+                p.keys.remove(k);
+                x.addKey(k);
+                System.out.println("La clé de type " + k.name().toLowerCase() + " a été donné à "+ x.name);
+                p.action-=1;
+                return;
+            }
+        }
+        System.out.println("Aucun joueur présent dans votre zone :(");
     }
     /**
      * Notez qu'à l'intérieur de la classe [CModele], la classe interne est
@@ -617,7 +705,7 @@ class CVue {
         frame.add(grille);
         commandes = new VueCommandes(modele);
         frame.add(commandes);
-
+        System.out.println(frame.getSize());
         /**
          * Remarque : on peut passer à la méthode [add] des paramètres
          * supplémentaires indiquant où placer l'élément. Par exemple, si on
@@ -634,7 +722,7 @@ class CVue {
          *  - Indiquer qu'on quitte l'application si la fenêtre est fermée.
          *  - Préciser que la fenêtre doit bien apparaître à l'écran.
          */
-        frame.pack();
+        frame.setSize(1080,780);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
     }
@@ -810,32 +898,14 @@ class VueCommandes extends JPanel {
         /** Enregistrement du contrôleur comme auditeur du bouton. */
         boutonAvance.addActionListener(ctrl);
 
-
-
-        JButton droite = new JButton("droite");
-        panel.add(droite);
-        Droite d = new Droite(modele);
-        droite.addActionListener(d);
-
-        GridBagLayout grid = new GridBagLayout() ;
-        grid.addLayoutComponent("droite",droite);
-
-        JButton gauche = new JButton("gauche");
-        panel.add(gauche);
-        Gauche g = new Gauche(modele);
-        gauche.addActionListener(g);
-
-        JButton haut = new JButton("bas");
-        panel.add(haut);
-        Haut h = new Haut(modele);
-        haut.addActionListener(h);
-
-        JButton bas = new JButton("haut");
-        panel.add(bas);
-        Bas b = new Bas(modele);
-        bas.addActionListener(b);
-        border.add(boutonAvance);
-
+        panel.add(boutonAvance);
+        String direc[] ={"haut","bas","droite","gauche","haut-droite","haut-gauche","bas-droite","bas-gauche"};
+        for(String d:direc) {
+            JButton droite = new JButton(d);
+            panel.add(droite);
+            Droite droite1 = new Droite(modele,d);
+            droite.addActionListener(droite1);
+        }
 
 
         this.add(panel);
@@ -844,7 +914,7 @@ class VueCommandes extends JPanel {
         panel4.add(recupA);
         RecupA r = new RecupA(modele);
         recupA.addActionListener(r);
-        String a[] ={"haut","bas","droite","gauche"};
+        String a[] ={"haut","bas","droite","gauche","haut-droite","haut-gauche","bas-droite","bas-gauche"};
         for (String s: a){
             JButton assecher = new JButton(s);
             panel3.add(assecher);
@@ -868,6 +938,10 @@ class VueCommandes extends JPanel {
         SearchKey s = new SearchKey(modele);
         search.addActionListener(s);
 
+        JButton give = new JButton("giveKey");
+        panel4.add(give);
+        GiveKey g = new GiveKey(modele);
+        give.addActionListener(g);
         this.add(panel4);
 
         JPanel joueurs =  new JPanel(new GridLayout(1, 4, 20, 20));
@@ -897,54 +971,17 @@ class Controleur implements ActionListener {
 class Droite implements ActionListener {
 
     CModele modele;
-
-    public Droite(CModele modele) {
+    private String direc;
+    public Droite(CModele modele,String direc) {
         this.modele = modele;
+        this.direc = direc;
     }
 
     public void actionPerformed(ActionEvent e) {
-        modele.move("droite");
+        modele.move(direc);
     }
 }
 
-class Bas implements ActionListener {
-
-    CModele modele;
-
-    public Bas(CModele modele) {
-        this.modele = modele;
-    }
-
-    public void actionPerformed(ActionEvent e) {
-        modele.move("bas");
-    }
-}
-
-class Gauche implements ActionListener {
-
-    CModele modele;
-
-    public Gauche(CModele modele) {
-        this.modele = modele;
-    }
-
-    public void actionPerformed(ActionEvent e) {
-        modele.move("gauche");
-    }
-}
-
-class Haut implements ActionListener {
-
-    CModele modele;
-
-    public Haut(CModele modele) {
-        this.modele = modele;
-    }
-
-    public void actionPerformed(ActionEvent e) {
-        modele.move("haut");
-    }
-}
 
 class RecupA implements ActionListener {
     CModele modele;
@@ -1003,5 +1040,16 @@ class SearchKey implements  ActionListener{
 
     public void actionPerformed(ActionEvent e) {
         modele.searchKey();
+    }
+}
+class GiveKey implements  ActionListener{
+    CModele modele;
+
+    public GiveKey(CModele modele) {
+        this.modele = modele;
+    }
+
+    public void actionPerformed(ActionEvent e) {
+        modele.giveKey();
     }
 }

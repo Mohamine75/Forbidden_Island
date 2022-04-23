@@ -10,7 +10,7 @@ public class Player  {
     protected  int posY;
     protected HashSet<Artefact> artefacts;
     protected ArrayList<Key> keys;
-    protected int action = 3;
+    protected float action = 3;
     protected String name;
     protected Roles role;
     public Player(int posX, int posY) {
