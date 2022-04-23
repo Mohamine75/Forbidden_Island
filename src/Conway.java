@@ -10,6 +10,7 @@ import java.awt.event.*;
 import javax.swing.*;
 
 import Images.*;
+
 interface Observer {
 
 
@@ -56,8 +57,8 @@ class CModele extends Observable {
     protected boolean loose = false;
     protected HashMap<Integer, Player> joueurs = new HashMap<>();
     protected int tour = 0;
-    private Cellule heliport;
     protected Banque b = new Banque();
+    private Cellule heliport;
 
     public CModele() {
         creationJoueurs();
@@ -231,7 +232,7 @@ class CModele extends Observable {
     }
 
     public void tourParTour() {
-        if (joueurs.get(tour).action == 0) {
+        if (joueurs.get(tour).action <= 0.5) {
             joueurs.get(tour).action = 3;
             joueurs.get(tour).actionObjet = 1;
             tour++;
@@ -638,8 +639,7 @@ class CModele extends Observable {
                             p1.posX = x;
                         }
                     }
-                }
-                else{
+                } else {
                     p.posY = y;
                     p.posX = x;
                 }
@@ -886,36 +886,50 @@ class VueGrille extends JPanel implements Observer {
      */
     private void paint(Graphics g, Cellule c, int x, int y) {
         switch (c.level) {
-            case normal -> g.drawImage(modele.b.img("jgl_normale"),x,y,TAILLE,TAILLE,null);
-            case inonde -> g.setColor(Color.CYAN);
-            case submerge -> g.setColor(Color.BLUE);
+            case normal -> g.drawImage(modele.b.img("jgl_normale"), x, y, TAILLE, TAILLE, null);
+            case inonde ->g.drawImage(modele.b.img("jgl_inonde"), x, y, TAILLE, TAILLE, null);
+            case submerge -> g.drawImage(modele.b.img("submerge"), x, y, TAILLE, TAILLE, null);
 
         }
         int i = 0;
+        if (!(c.artefact == null)) {
+            switch (c.level) {
+                case normal -> {
+                    switch (c.artefact) {
+                        case EAU -> g.drawImage(modele.b.img("eau_normale"), x, y, TAILLE, TAILLE, null);
+                        case FEU -> g.drawImage(modele.b.img("feu_normale"), x, y, TAILLE, TAILLE, null);
+                        case TERRE -> g.drawImage(modele.b.img("terre_normale"), x, y, TAILLE, TAILLE, null);
+                        case AIR -> g.drawImage(modele.b.img("air_normale"), x, y, TAILLE, TAILLE, null);
+                    }
+                }
+                case inonde -> {
+                    switch (c.artefact) {
+                        case EAU -> g.drawImage(modele.b.img("eau_inonde"), x, y, TAILLE, TAILLE, null);
+                        case FEU -> g.drawImage(modele.b.img("feu_inonde"), x, y, TAILLE, TAILLE, null);
+                        case TERRE -> g.drawImage(modele.b.img("terre_inonde"), x, y, TAILLE, TAILLE, null);
+                        case AIR -> g.drawImage(modele.b.img("air_inonde"), x, y, TAILLE, TAILLE, null);
+                    }
+                }
+            }
+        }
+        if (c.heliport) {
+            if(c.level == Level.normal) {
+                g.drawImage(modele.b.img("helico"), x, y, TAILLE, TAILLE, null);
+            }
+            else{
+                g.drawImage(modele.b.img("helico_inonde"), x, y, TAILLE, TAILLE, null);
+            }
+        }
         for (Player p : modele.joueurs.values()) {
             if (c.getX() == p.posX && c.getY() == p.posY) {
                 switch (i) {
-                    case 0 -> g.setColor(Color.GREEN);
-                    case 1 -> g.setColor(Color.magenta);
-                    case 2 -> g.setColor(Color.red);
-                    case 3 -> g.setColor(Color.black);
+                    case 0 -> g.drawImage(modele.b.img("p1"), x, y, TAILLE/2, TAILLE/2, null);
+                    case 1 ->g.drawImage(modele.b.img("p2"), x, y, TAILLE/2, TAILLE/2, null);
+                    case 2 ->g.drawImage(modele.b.img("p3"), x, y, TAILLE/2, TAILLE/2, null);
+                    case 3 -> g.drawImage(modele.b.img("p4"), x, y, TAILLE/2, TAILLE/2, null);
                 }
-                g.fillOval(x, y, TAILLE / 2, TAILLE / 2);
             }
             i++;
-        }
-        if (!(c.artefact == null)) {
-            switch (c.artefact) {
-                case EAU -> g.setColor(Color.GRAY);
-                case FEU -> g.drawImage(modele.b.img("feu_normale"),x,y,TAILLE,TAILLE,null);
-                case TERRE -> g.setColor(Color.BLACK);
-                case AIR -> g.setColor(Color.pink);
-            }
-            //  g.drawOval(x, y, TAILLE*1, TAILLE*1);
-        }
-        if (c.heliport) {
-            g.setColor(Color.pink);
-            g.fillOval(x, y, TAILLE / 2, TAILLE / 2);
         }
     }
 }
