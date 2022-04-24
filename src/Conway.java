@@ -138,6 +138,7 @@ class CModele extends Observable {
         switch (nb) {
             case 2 -> {
                 joueurs.put(0, new Player(0, 0));
+
                 joueurs.put(1, new Player(0, 1));
             }
             case 3 -> {
@@ -147,6 +148,8 @@ class CModele extends Observable {
             }
             case 4 -> {
                 joueurs.put(0, new Player(0, 0));
+                joueurs.get(0).objets.add("helico");
+
                 joueurs.put(1, new Player(0, 1));
                 joueurs.put(2, new Player(1, 0));
                 joueurs.put(3, new Player(1, 1));
@@ -375,7 +378,7 @@ class CModele extends Observable {
             }
 
         }
-        if ((x < 0 || x >= HAUTEUR) || (y >= HAUTEUR || y < 0)) {
+        if ((x < 0 || x > HAUTEUR) || (y > HAUTEUR || y < 0)) {
             System.out.println("Out of Bounds");
             return;
         }
@@ -440,7 +443,7 @@ class CModele extends Observable {
             }
 
         }
-        if ((x < 0 || x >= HAUTEUR) || (y >= HAUTEUR || y < 0)) {
+        if ((x < 0 || x > HAUTEUR) || (y > HAUTEUR || y < 0)) {
             System.out.println("La Case est en dehors de la grille");
             return;
         }
@@ -686,7 +689,7 @@ class CModele extends Observable {
         int x = sc.nextInt();
         System.out.println("y :");
         int y = sc.nextInt();
-        while ((x < 0 || x >= LARGEUR) || (y >= HAUTEUR || y < 0) || cellules[x][y].level == Level.submerge) {
+        while ((x < 0 || x > LARGEUR) || (y > HAUTEUR || y < 0) || cellules[x][y].level == Level.submerge) {
             System.out.println("impossible");
             System.out.println("x :");
             x = sc.nextInt();
@@ -704,8 +707,8 @@ class CModele extends Observable {
                     objet = objet.toLowerCase();
                 }
                 if (objet.equals("oui")) {
-                    for (Player p1 : joueurs.values()) {
-                        if (p1.posY == p.posY && p1.posX == p.posX) {
+                    for (Player p1 : joueurs.values() ) {
+                        if ((p1.posY == p.posY && p1.posX == p.posX) && !p.name.equals(p1.name)) {
                             p1.posY = y;
                             p1.posX = x;
                         }
@@ -716,7 +719,7 @@ class CModele extends Observable {
                     p.posY = y;
                     p.posX = x;
                 }
-                p.objets.remove(objet);
+                p.objets.remove("helico");
                 if (p.actionObjet == 1) {
                     p.actionObjet -= 1;
                 } else {
@@ -726,7 +729,7 @@ class CModele extends Observable {
                 case "sable" -> {
                     if (cellules[x][y].level == Level.inonde) {
                         cellules[x][y].level = Level.normal;
-                        p.objets.remove(objet);
+                        p.objets.remove("sable");
                         if (p.actionObjet == 1) {
                             p.actionObjet -= 1;
                         } else {
