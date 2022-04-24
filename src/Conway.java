@@ -273,6 +273,12 @@ class CModele extends Observable {
         System.exit(0);
     }
 
+    public void cheat() throws InterruptedException {
+            System.out.println("Cheat enclenché, bravo la victoire est gagnée, Hello Mr.Carmelo");
+            TimeUnit.SECONDS.sleep(10);
+            System.exit(0);
+    }
+
     public void helico() throws InterruptedException {
         ArrayList<Artefact> a = new ArrayList<>();
         testLoose();
@@ -970,6 +976,7 @@ class VueCommandes extends JPanel {
         drawDryUpButtons(line);
         drawActionButtons(line);
         drawEndOfTurn();
+        drawCheatWin();
 
     }
 
@@ -1036,6 +1043,14 @@ class VueCommandes extends JPanel {
         Controleur c = new Controleur(modele);
         end.addActionListener(c);
         this.add(endOfTurnButton);
+    }
+    void drawCheatWin(){
+        JPanel cheatWinButton = new JPanel();
+        JButton win = new JButton("WIN");
+        cheatWinButton.add(win);
+        Cheat c = new Cheat(modele);
+        win.addActionListener(c);
+        this.add(cheatWinButton);
     }
 
 }
@@ -1183,6 +1198,21 @@ class Objet implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         try {
             modele.objet();
+        } catch (InterruptedException ex) {
+            ex.printStackTrace();
+        }
+    }
+}
+class Cheat implements ActionListener {
+    CModele modele;
+
+    public Cheat(CModele modele) {
+        this.modele = modele;
+    }
+
+    public void actionPerformed(ActionEvent e) {
+        try {
+            modele.cheat();
         } catch (InterruptedException ex) {
             ex.printStackTrace();
         }
