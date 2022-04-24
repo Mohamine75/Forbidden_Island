@@ -1,0 +1,21 @@
+ZEMALI MOHAMED
+YAHI YANIS
+
+Le travail efectué:
+
+Nous avons traité tout les points du sujet, excepté la simulation de paquet de cartes.
+Nous nous sommes réparti le travail plutôt équitablement, nous sommes parti du fichier Conway
+car il ressemblait beaucoup à notre projet. Mohamed s'est surtout penché des fonctions de déplacements
+,assèchement, récuperer un artefact et Yanis surtout sur la l'aspect "jeu de société", donc inonde hasard, 
+les points d'actions, fin de tour,les boutons et la vue notamment. Cependant, nous avons plus ou moins fait
+la majorité des fonctions ensemble, ou du moins pas sans l'avis de l'autre.
+Pour ce qui est des bonus, nous nous sommes réparti les rôles à faire, l'échange de clé était assez rapide à faire
+et action spéciale nous nous y sommes mis à deux.
+
+Difficultés rencontrées:
+
+Faire un affichage cohérent et propre. Comprendre les bases du modèles MVC et tout tester car il y a beaucoup
+de mouvement possible, en plus de quelque bugs à régler, surtout au niveau de l'affichage.
+
+Pour finir, nous sommes assez fiers de notre projet, le jeu est plutôt fun et jouable, ajouter la simulation
+de paquet de cartes ne nous interessait pas vraiment.
