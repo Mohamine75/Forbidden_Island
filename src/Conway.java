@@ -211,7 +211,7 @@ class CModele extends Observable {
             System.out.println("Il vous reste encore " + joueurs.get(tour).action + " action à faire ");
             return;
         }
-        if (this.win){
+        if (this.win) {
             System.out.println("Bravo, le jeu est gagné :)");
             TimeUnit.SECONDS.sleep(10);
             System.exit(0);
@@ -221,8 +221,8 @@ class CModele extends Observable {
         Random random = new Random();
         ArrayList<Cellule> res = new ArrayList<>();
         while (res.size() < 3) {
-            int x = random.nextInt(HAUTEUR+1);
-            int y = random.nextInt(LARGEUR+1);
+            int x = random.nextInt(HAUTEUR + 1);
+            int y = random.nextInt(LARGEUR + 1);
             Cellule c = getCellule(x, y);
             if (!getCellule(x, y).getLevel().equals(Level.submerge) && countEtats() >= 3) {
                 getCellule(x, y).evolue();
@@ -265,7 +265,7 @@ class CModele extends Observable {
         if (joueurs.get(tour).action - 1 < 0) {
             return;
         }
-        if (this.win){
+        if (this.win) {
             System.out.println("Bravo, le jeu est gagné :)");
             TimeUnit.SECONDS.sleep(10);
             System.exit(0);
@@ -277,8 +277,8 @@ class CModele extends Observable {
             case 0 -> {
                 ArrayList<Cellule> res = new ArrayList<>();
                 while (res.size() < 3) {
-                    int x = r.nextInt(LARGEUR+1);
-                    int y = r.nextInt(HAUTEUR+1);
+                    int x = r.nextInt(LARGEUR + 1);
+                    int y = r.nextInt(HAUTEUR + 1);
                     Cellule c = getCellule(x, y);
                     if (!getCellule(x, y).getLevel().equals(Level.submerge) && countEtats() >= 3) {
                         getCellule(x, y).evolue();
@@ -296,9 +296,9 @@ class CModele extends Observable {
     }
 
     public void helico() throws InterruptedException {
-         ArrayList<Artefact> a = new ArrayList<>();
+        ArrayList<Artefact> a = new ArrayList<>();
         testLoose();
-        if (this.win){
+        if (this.win) {
             System.out.println("Bravo, le jeu est gagné :)");
             TimeUnit.SECONDS.sleep(10);
             System.exit(0);
@@ -310,8 +310,8 @@ class CModele extends Observable {
 
         for (Player p : joueurs.values()) {
             if (heliport.x == p.posX && heliport.y == p.posY) {
-                for (Artefact artefact : p.artefacts){
-                    if(!a.contains(artefact)){
+                for (Artefact artefact : p.artefacts) {
+                    if (!a.contains(artefact)) {
                         a.add(artefact);
                     }
                 }
@@ -335,7 +335,7 @@ class CModele extends Observable {
         if (joueurs.get(tour).action - 1 < 0) {
             return;
         }
-        if (this.win){
+        if (this.win) {
             System.out.println("Bravo, le jeu est gagné :)");
             TimeUnit.SECONDS.sleep(10);
             System.exit(0);
@@ -398,7 +398,7 @@ class CModele extends Observable {
             return;
 
         }
-        if (this.win){
+        if (this.win) {
             System.out.println("Bravo, le jeu est gagné :)");
             TimeUnit.SECONDS.sleep(10);
             System.exit(0);
@@ -458,7 +458,7 @@ class CModele extends Observable {
     }
 
     public void actionSpeciale() throws InterruptedException {
-        if (this.win){
+        if (this.win) {
             System.out.println("Bravo, le jeu est gagné :)");
             TimeUnit.SECONDS.sleep(10);
             System.exit(0);
@@ -610,7 +610,7 @@ class CModele extends Observable {
         if (joueurs.get(tour).action == 0 || loose) {
             return;
         }
-        if (this.win){
+        if (this.win) {
             System.out.println("Bravo, le jeu est gagné :)");
             TimeUnit.SECONDS.sleep(10);
             System.exit(0);
@@ -655,7 +655,7 @@ class CModele extends Observable {
 
 
     public void objet() throws InterruptedException {
-        if (this.win){
+        if (this.win) {
             System.out.println("Bravo, le jeu est gagné :)");
             TimeUnit.SECONDS.sleep(10);
             System.exit(0);
@@ -670,11 +670,14 @@ class CModele extends Observable {
             return;
         }
         Scanner sc = new Scanner(System.in);
-        System.out.println("Quelle objet voulez-vous utiliser?");
+        System.out.println("Quelle objet voulez-vous utiliser, faites stop sinon.");
         String objet = sc.next();
         objet = objet.toLowerCase();
-        while (!p.objets.contains(objet)) {
-            System.out.println("Quelle objet voulez-vous utiliser?");
+        while (!p.objets.contains(objet) || !objet.equals("stop")) {
+            if (objet.equals("stop")) {
+                return;
+            }
+            System.out.println("Quelle objet voulez-vous utiliser, faites stop sinon.");
             objet = sc.next();
             objet = objet.toLowerCase();
         }
@@ -707,6 +710,8 @@ class CModele extends Observable {
                             p1.posX = x;
                         }
                     }
+                    p.posY = y;
+                    p.posX = x;
                 } else {
                     p.posY = y;
                     p.posX = x;
@@ -718,20 +723,21 @@ class CModele extends Observable {
                     p.action -= 1;
                 }
             }
-            case "sable" -> {
-                if (cellules[x][y].level == Level.inonde) {
-                    cellules[x][y].level = Level.normal;
-                    p.objets.remove(objet);
-                    if (p.actionObjet == 1) {
-                        p.actionObjet -= 1;
-                    } else {
-                        p.action -= 1;
+                case "sable" -> {
+                    if (cellules[x][y].level == Level.inonde) {
+                        cellules[x][y].level = Level.normal;
+                        p.objets.remove(objet);
+                        if (p.actionObjet == 1) {
+                            p.actionObjet -= 1;
+                        } else {
+                            p.action -= 1;
+                        }
                     }
                 }
+
             }
         }
     }
-}
 /**
  * Fin de la classe CModele.
  */
