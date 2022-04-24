@@ -148,8 +148,6 @@ class CModele extends Observable {
             }
             case 4 -> {
                 joueurs.put(0, new Player(0, 0));
-                joueurs.get(0).objets.add("helico");
-
                 joueurs.put(1, new Player(0, 1));
                 joueurs.put(2, new Player(1, 0));
                 joueurs.put(3, new Player(1, 1));
