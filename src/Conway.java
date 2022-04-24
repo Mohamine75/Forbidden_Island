@@ -2,8 +2,6 @@ import Enums.Artefact;
 import Enums.Key;
 import Enums.Level;
 import Enums.Roles;
-
-import java.awt.image.BufferedImage;
 import java.util.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -56,7 +54,6 @@ public class Conway {
 class CModele extends Observable {
     public static final int HAUTEUR = 5, LARGEUR = 5;
     private final Cellule[][] cellules;
-    protected boolean win = false;
     protected boolean loose = false;
     protected HashMap<Integer, Player> joueurs = new HashMap<>();
     protected int tour = 0;
@@ -212,12 +209,6 @@ class CModele extends Observable {
             System.out.println("Il vous reste encore " + joueurs.get(tour).action + " action à faire ");
             return;
         }
-        if (this.win) {
-            System.out.println("Bravo, le jeu est gagné :)");
-            TimeUnit.SECONDS.sleep(10);
-            System.exit(0);
-            return;
-        }
         joueurs.get(tour).addKeyHasard(16);
         Random random = new Random();
         ArrayList<Cellule> res = new ArrayList<>();
@@ -266,12 +257,6 @@ class CModele extends Observable {
         if (joueurs.get(tour).action - 1 < 0) {
             return;
         }
-        if (this.win) {
-            System.out.println("Bravo, le jeu est gagné :)");
-            TimeUnit.SECONDS.sleep(10);
-            System.exit(0);
-            return;
-        }
         Player p = joueurs.get(tour);
         Random r = new Random();
         switch (r.nextInt(3)) {
@@ -283,15 +268,14 @@ class CModele extends Observable {
     }
 
 
+    private void win() throws InterruptedException {
+        TimeUnit.SECONDS.sleep(10);
+        System.exit(0);
+    }
+
     public void helico() throws InterruptedException {
         ArrayList<Artefact> a = new ArrayList<>();
         testLoose();
-        if (this.win) {
-            System.out.println("Bravo, le jeu est gagné :)");
-            TimeUnit.SECONDS.sleep(10);
-            System.exit(0);
-            return;
-        }
         if (joueurs.get(tour).action - 1 < 0) {
             return;
         }
@@ -310,8 +294,7 @@ class CModele extends Observable {
         }
         if (a.size() == 4) {
             System.out.println("Bravo, partie gagnée");
-            win = true;
-            helico();
+            win();
         }
         System.out.println("Les conditions ne sont pas réunies.");
 
@@ -321,12 +304,6 @@ class CModele extends Observable {
     public void move(String direction) throws InterruptedException {
         testLoose();
         if (joueurs.get(tour).action - 1 < 0) {
-            return;
-        }
-        if (this.win) {
-            System.out.println("Bravo, le jeu est gagné :)");
-            TimeUnit.SECONDS.sleep(10);
-            System.exit(0);
             return;
         }
         Player p = joueurs.get(tour);
@@ -386,12 +363,6 @@ class CModele extends Observable {
             return;
 
         }
-        if (this.win) {
-            System.out.println("Bravo, le jeu est gagné :)");
-            TimeUnit.SECONDS.sleep(10);
-            System.exit(0);
-            return;
-        }
         Player p = joueurs.get(tour);
         int x = p.posX;
         int y = p.posY;
@@ -446,12 +417,6 @@ class CModele extends Observable {
     }
 
     public void actionSpeciale() throws InterruptedException {
-        if (this.win) {
-            System.out.println("Bravo, le jeu est gagné :)");
-            TimeUnit.SECONDS.sleep(10);
-            System.exit(0);
-            return;
-        }
         if (joueurs.get(tour).action - 1 < 0 || loose) {
             return;
         }
@@ -598,12 +563,6 @@ class CModele extends Observable {
         if (joueurs.get(tour).action < 1 || loose) {
             return;
         }
-        if (this.win) {
-            System.out.println("Bravo, le jeu est gagné :)");
-            TimeUnit.SECONDS.sleep(10);
-            System.exit(0);
-            return;
-        }
         Player p = joueurs.get(tour);
 
         if (null != getCellule(p.posX, p.posY).artefact) {
@@ -620,35 +579,9 @@ class CModele extends Observable {
         System.out.println("aucun Artefact non récupéré ");
     }
 
-    public void recupKey() throws InterruptedException {
-        Player p = joueurs.get(tour);
-        p.action -= 1;
-        if (null != getCellule(p.posX, p.posY).key) {
-            p.keys.add(getCellule(p.posX, p.posY).key);
-            getCellule(p.posX, p.posY).key = null;
-            System.out.println("Clé recupérée !!");
-
-            return;
-
-        }
-        Random random = new Random();
-        if (random.nextInt(4) == 0) {
-            getCellule(p.posX, p.posY).evolue();
-            System.out.println("Montée des eaux, !!");
-
-        }
-        System.out.println("Aucune clé ici");
-        avance();
-    }
 
 
     public void objet() throws InterruptedException {
-        if (this.win) {
-            System.out.println("Bravo, le jeu est gagné :)");
-            TimeUnit.SECONDS.sleep(10);
-            System.exit(0);
-            return;
-        }
         Player p = joueurs.get(tour);
         if ((p.action == 0 && p.actionObjet == 0) || loose) {
             return;
