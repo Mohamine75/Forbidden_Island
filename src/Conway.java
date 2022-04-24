@@ -673,7 +673,7 @@ class CModele extends Observable {
         System.out.println("Quelle objet voulez-vous utiliser, faites stop sinon.");
         String objet = sc.next();
         objet = objet.toLowerCase();
-        while (!p.objets.contains(objet) || !objet.equals("stop")) {
+        while (!p.objets.contains(objet)) {
             if (objet.equals("stop")) {
                 return;
             }
