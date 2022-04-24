@@ -180,6 +180,7 @@ class CModele extends Observable {
 
         if (heliport.level == Level.submerge) {
             this.loose = true;
+            System.out.println("Partie perdue !");
             TimeUnit.SECONDS.sleep(10);
             System.exit(0);
             return;
@@ -189,13 +190,17 @@ class CModele extends Observable {
         testDeaths();
     }
 
-    private void testDeaths() {
+    private void testDeaths() throws InterruptedException {
 
         for (Player p : joueurs.values()) {
             if (cellules[p.posX][p.posY].level == Level.submerge && p.role != Roles.PLONGEUR) {
                 System.out.println("Un joueur s'est noyé, fin du jeu :(");
                 System.out.println("Joueur : " + p.name);
                 this.loose = true;
+                System.out.println("Partie perdue !");
+                TimeUnit.SECONDS.sleep(10);
+                System.exit(0);
+                return;
             }
         }
     }
@@ -216,8 +221,8 @@ class CModele extends Observable {
         Random random = new Random();
         ArrayList<Cellule> res = new ArrayList<>();
         while (res.size() < 3) {
-            int x = random.nextInt(LARGEUR);
-            int y = random.nextInt(LARGEUR);
+            int x = random.nextInt(HAUTEUR+1);
+            int y = random.nextInt(LARGEUR+1);
             Cellule c = getCellule(x, y);
             if (!getCellule(x, y).getLevel().equals(Level.submerge) && countEtats() >= 3) {
                 getCellule(x, y).evolue();
@@ -272,8 +277,8 @@ class CModele extends Observable {
             case 0 -> {
                 ArrayList<Cellule> res = new ArrayList<>();
                 while (res.size() < 3) {
-                    int x = r.nextInt(LARGEUR);
-                    int y = r.nextInt(LARGEUR);
+                    int x = r.nextInt(LARGEUR+1);
+                    int y = r.nextInt(HAUTEUR+1);
                     Cellule c = getCellule(x, y);
                     if (!getCellule(x, y).getLevel().equals(Level.submerge) && countEtats() >= 3) {
                         getCellule(x, y).evolue();
@@ -615,6 +620,7 @@ class CModele extends Observable {
 
         if (null != getCellule(p.posX, p.posY).artefact) {
             if (verifArtefact(getCellule(p.posX, p.posY).artefact, p)) {
+                p.keys.remove(Key.valueOf(getCellule(p.posX, p.posY).artefact.name()));
                 p.addArtefact(getCellule(p.posX, p.posY).artefact);
                 getCellule(p.posX, p.posY).artefact = null;
                 System.out.println("Artefact  récupéré");
