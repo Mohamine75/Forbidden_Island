@@ -1012,15 +1012,14 @@ class VueGrille extends JPanel implements Observer {
             i++;
         }
         Player p =  modele.joueurs.get(modele.tour);
-        g.clearRect(TAILLE,TAILLE*6,200,110);
+        g.clearRect(TAILLE,TAILLE*6,400,110);
         g.setFont(g.getFont().deriveFont(Font.BOLD));
         g.drawString("Nom du Joueur :   " + p.name,TAILLE,TAILLE *6+ 10);
         g.drawString("Role :   " + p.role,TAILLE,TAILLE *6+ 30);
-
         g.drawString("Actions : " + p.action, TAILLE,(TAILLE * 6 )+ 50);
-        g.drawString(" Artefacts : " + p.artefacts , TAILLE ,(TAILLE * 6 )+ 70);
-        g.drawString(" Keys : " + p.keys , TAILLE ,(TAILLE * 6 )+ 90);
-        g.drawString(" Objets : " + p.objets , TAILLE ,(TAILLE * 6 )+ 110);
+        g.drawString("Artefacts : " + p.artefacts , TAILLE ,(TAILLE * 6 )+ 70);
+        g.drawString("Keys : " + p.keys , TAILLE ,(TAILLE * 6 )+ 90);
+        g.drawString("Objets : " + p.objets , TAILLE ,(TAILLE * 6 )+ 110);
 
     }
 }
