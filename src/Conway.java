@@ -595,7 +595,7 @@ class CModele extends Observable {
     }
 
     public void recupererArtefact() throws InterruptedException {
-        if (joueurs.get(tour).action == 0 || loose) {
+        if (joueurs.get(tour).action < 1 || loose) {
             return;
         }
         if (this.win) {
@@ -883,7 +883,7 @@ class VueGrille extends JPanel implements Observer {
     /**
      * Définition d'une taille (en pixels) pour l'affichage des cellules.
      */
-    private final static int TAILLE = 100;
+    private final static int TAILLE = 80;
     /**
      * On maintient une référence vers le modèle.
      */
