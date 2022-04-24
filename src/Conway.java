@@ -275,26 +275,13 @@ class CModele extends Observable {
         Player p = joueurs.get(tour);
         Random r = new Random();
         switch (r.nextInt(3)) {
-            case 0 -> {
-                ArrayList<Cellule> res = new ArrayList<>();
-                while (res.size() < 3) {
-                    int x = r.nextInt(LARGEUR + 1);
-                    int y = r.nextInt(HAUTEUR + 1);
-                    Cellule c = getCellule(x, y);
-                    if (!getCellule(x, y).getLevel().equals(Level.submerge) && countEtats() >= 3) {
-                        getCellule(x, y).evolue();
-                        res.add(c);
-                    }
-                    if (countEtats() < 3) {
-                        res.add(c);
-                    }
-                }
-            }
+            case 0 -> cellules[p.posX][p.posY].evolue();
             case 1 -> p.addKeyHasard(5);
             case 2 -> System.out.println("Rien ne s'est passée...");
         }
         p.action -= 1;
     }
+
 
     public void helico() throws InterruptedException {
         ArrayList<Artefact> a = new ArrayList<>();
