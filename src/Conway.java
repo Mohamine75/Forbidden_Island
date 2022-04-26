@@ -105,7 +105,7 @@ class CModele extends Observable {
         int nb;
         nb = sc.nextInt();
         while (nb < 2 || nb > 4) {
-            System.out.println("Retape le nombre arrête de jouer au con frérot");
+            System.out.println("Retapez le nombre");
             nb = sc.nextInt();
         }
         ArrayList<String> noms = createNames(nb, sc);
@@ -225,6 +225,7 @@ class CModele extends Observable {
             }
         }
         notifyObservers();
+        testLoose();
         tourParTour();
     }
 
@@ -320,28 +321,41 @@ class CModele extends Observable {
             case "⬇" -> y = p.posY + 1;
             case "➡" -> x = p.posX + 1;
             case "⬅" -> x = p.posX - 1;
+            case "⬛" ->{
+                return;
+            }
             case "⬈" -> {
                 if (p.role == Roles.EXPLORATEUR) {
                     y = p.posY - 1;
                     x = p.posX + 1;
+                }
+                else{
+                    return;
                 }
             }
             case "⬊" -> {
                 if (p.role == Roles.EXPLORATEUR) {
                     y = p.posY + 1;
                     x = p.posX + 1;
+                }else{
+                    return;
                 }
+
             }
             case "⬋" -> {
                 if (p.role == Roles.EXPLORATEUR) {
                     y = p.posY + 1;
                     x = p.posX - 1;
+                }else{
+                    return;
                 }
             }
             case "⬉" -> {
                 if (p.role == Roles.EXPLORATEUR) {
                     y = p.posY - 1;
                     x = p.posX - 1;
+                }else{
+                    return;
                 }
             }
 
@@ -365,7 +379,8 @@ class CModele extends Observable {
     }
 
     protected void assecher(String direction) throws InterruptedException {
-        if (joueurs.get(tour).action < 0.5 || loose) {
+        testLoose();
+        if (joueurs.get(tour).action < 0.5) {
             return;
 
         }
@@ -384,11 +399,17 @@ class CModele extends Observable {
                     y = p.posY - 1;
                     x = p.posX + 1;
                 }
+                else{
+                    return;
+                }
             }
             case "⬊" -> {
                 if (p.role == Roles.EXPLORATEUR) {
                     y = p.posY + 1;
                     x = p.posX + 1;
+                }
+                else{
+                    return;
                 }
             }
             case "⬋" -> {
@@ -396,11 +417,17 @@ class CModele extends Observable {
                     y = p.posY + 1;
                     x = p.posX - 1;
                 }
+                else{
+                    return;
+                }
             }
             case "⬉" -> {
                 if (p.role == Roles.EXPLORATEUR) {
                     y = p.posY - 1;
                     x = p.posX - 1;
+                }
+                else{
+                    return;
                 }
             }
 
@@ -423,7 +450,7 @@ class CModele extends Observable {
     }
 
     public void actionSpeciale() throws InterruptedException {
-        if (joueurs.get(tour).action - 1 < 0 || loose) {
+        if (joueurs.get(tour).action - 1 < 0) {
             return;
         }
         switch (joueurs.get(tour).role) {
